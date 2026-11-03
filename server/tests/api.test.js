@@ -33,6 +33,19 @@ test('unknown API action returns 404 JSON response', async () => {
     assert.equal(typeof response.body.error, 'string');
 });
 
+test('REST admin status endpoint requires PATCH method', async () => {
+    const response = await request(app)
+        .post('/api/admin/orders/0123456789abcdef0123456789abcdef/status')
+        .send({ status: 'Processing' });
+    assert.equal(response.status, 404);
+});
+
+test('REST admin delete endpoint requires DELETE method', async () => {
+    const response = await request(app)
+        .post('/api/admin/orders/0123456789abcdef0123456789abcdef');
+    assert.equal(response.status, 404);
+});
+
 test('chat endpoint rejects malformed messages without calling provider', async () => {
     const response = await request(app).post('/api/chat').send({ messages: [] });
     assert.equal(response.status, 422);

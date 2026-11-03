@@ -1248,7 +1248,7 @@ function renderAdminOrderCard(order, isArchived) {
 
 function updateStatus(orderKey, stat) {
     var labels = { 'Pending': 'Pending', 'Processing': 'Diproses', 'Success': 'Berhasil' };
-    apiRequest('admin-status', { method: 'POST', body: { orderKey: orderKey, status: stat } })
+    apiRequest('admin-status', { body: { orderKey: orderKey, status: stat } })
         .then(function () {
             toast('Status diperbarui → ' + (labels[stat] || stat));
             refreshAdminOrders();
@@ -1259,7 +1259,7 @@ function updateStatus(orderKey, stat) {
 
 function hapusOrder(orderKey) {
     if (!confirm('Hapus pesanan ini?')) return;
-    apiRequest('admin-delete', { method: 'POST', body: { orderKey: orderKey } })
+    apiRequest('admin-delete', { body: { orderKey: orderKey } })
         .then(function () {
             delete buktiFotoMap[orderKey];
             toast('Pesanan dihapus');

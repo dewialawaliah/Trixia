@@ -31,9 +31,11 @@ export async function apiRequest(action, options = {}) {
     url = url.replace('{orderKey}', encodeURIComponent(query.get('orderKey') || body.orderKey || ''));
     if (options.query && !url.includes('?')) url += `?${options.query}`;
 
+    const isMappedRoute = Object.prototype.hasOwnProperty.call(API_ROUTES, action);
+    const requestMethod = isMappedRoute ? method : (options.method || method);
     const response = await fetch(url, {
         headers: options.body ? { 'Content-Type': 'application/json' } : {},
-        method: options.method || method,
+        method: requestMethod,
         credentials: 'same-origin',
         body: options.body ? JSON.stringify(options.body) : undefined
     });
