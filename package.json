@@ -8,8 +8,8 @@
   "scripts": {
     "dev": "vite --config client/vite.config.js",
     "build": "vite build --config client/vite.config.js",
-    "start": "node server/index.js",
-    "api": "node --watch server/index.js",
+    "start": "node server/server.js",
+    "api": "node --watch server/server.js",
     "test": "node --test server/tests/*.test.js",
     "db:migrate": "node-pg-migrate up -m server/migrations",
     "db:rollback": "node-pg-migrate down -m server/migrations",

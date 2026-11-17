@@ -39,9 +39,15 @@ export async function apiRequest(action, options = {}) {
         credentials: 'same-origin',
         body: options.body ? JSON.stringify(options.body) : undefined
     });
-    const data = await response.json().catch(() => {
+    let data;
+    try {
+        data = await response.json();
+    } catch {
+        if (!response.ok) {
+            throw new Error(`Koneksi backend gagal (status ${response.status}). Pastikan server backend di port 3000 sudah dijalankan.`);
+        }
         throw new Error('Server mengirim respons yang tidak valid.');
-    });
+    }
     if (!response.ok) {
         const error = new Error(data.error || 'Permintaan ke server gagal.');
         error.status = response.status;

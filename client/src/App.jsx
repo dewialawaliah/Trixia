@@ -2,7 +2,94 @@ import React from 'react';
 import * as legacy from './runtime.js';
 import { GameCatalog } from './GameCatalog.jsx';
 
+function SiteFooter() {
+  return (
+    <footer className={"site-footer"}>
+      <div className={"footer-inner"}>
+        <div className={"footer-cta"}>
+          <div>
+            <span className={"footer-eyebrow"}>{"SIAP MAIN LAGI?"}</span>
+            <h2>{"Top up game favoritmu "}<span>{"di sini."}</span></h2>
+            <p>{"Pilih game, tentukan nominal, lalu ikuti langkah pembayaran."}</p>
+          </div>
+          <button className={"footer-cta-button"} type={"button"} onClick={() => { legacy.showPage('dashboard'); legacy.setNavActive(document.getElementById('navHome')); document.getElementById('gamesGrid')?.scrollIntoView({behavior:'smooth',block:'start'}); }}>
+            {"Mulai top up "}
+            <i className={"fas fa-arrow-right"} aria-hidden={"true"}></i>
+          </button>
+        </div>
+
+        <div className={"footer-columns"}>
+          <div className={"footer-brand"}>
+            <button className={"footer-logo"} type={"button"} onClick={() => { legacy.showPage('dashboard'); legacy.setNavActive(document.getElementById('navHome')); }} aria-label={"TRIXIA, kembali ke beranda"}>
+              <span className={"logo-icon"}>{"⟁"}</span> TRI<span>{"XIA"}</span>
+            </button>
+            <p>{"Tempat top up game dan voucher digital. Pesanan dapat dibuat sebagai tamu, tanpa harus membuat akun terlebih dahulu."}</p>
+            <a className={"footer-social"} href={"https://www.instagram.com/trixia.for3_"} target={"_blank"} rel={"noopener noreferrer"}>
+              <i className={"fab fa-instagram"} aria-hidden={"true"}></i>
+              <span>{"@trixia.for3_"}</span>
+              <i className={"fas fa-arrow-up-right-from-square footer-external-icon"} aria-hidden={"true"}></i>
+            </a>
+          </div>
+
+          <nav className={"footer-links"} aria-label={"Tautan footer"}>
+            <div className={"footer-link-group"}>
+              <h3>{"Jelajahi"}</h3>
+              <button type={"button"} onClick={() => { legacy.showPage('dashboard'); legacy.setNavActive(document.getElementById('navHome')); window.scrollTo({top:0,behavior:'smooth'}); }}>
+                {"Beranda"}
+              </button>
+              <button type={"button"} onClick={() => { legacy.showPage('statusPage'); legacy.setNavActive(document.getElementById('navStatus')); }}>
+                {"Cek status pesanan"}
+              </button>
+            </div>
+            <div className={"footer-link-group"}>
+              <h3>{"Akun & bantuan"}</h3>
+              <button type={"button"} onClick={() => { legacy.openAccount(); }}>
+                {"Profil dan riwayat"}
+              </button>
+              <button type={"button"} onClick={() => { legacy.toggleCS(); }}>
+                {"Bantuan pelanggan"}
+              </button>
+              <button type={"button"} onClick={() => { legacy.openCSChat(); }}>
+                {"Live chat"}
+              </button>
+            </div>
+          </nav>
+
+          <div className={"footer-payment"}>
+            <h3>{"Metode pembayaran"}</h3>
+            <p>{"Pilih channel yang tersedia saat checkout."}</p>
+            <div className={"footer-payment-badges"} aria-label={"QRIS, DANA, OVO"}>
+              <span>{"QRIS"}</span>
+              <span>{"DANA"}</span>
+              <span>{"OVO"}</span>
+            </div>
+            <small>{"Pembayaran diverifikasi admin setelah bukti transfer dikirim."}</small>
+          </div>
+        </div>
+
+        <div className={"footer-bottom"}>
+          <span>{"© 2026 TRIXIA. Seluruh hak cipta dilindungi."}</span>
+          <span className={"footer-bottom-note"}>
+            <i className={"fas fa-shield-alt"} aria-hidden={"true"}></i>
+            {" Simpan nomor pesanan untuk cek status."}
+          </span>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
 export default function App() {
+  
+  React.useEffect(() => {
+    legacy.checkResetToken();
+    const handleHash = () => {
+      legacy.checkResetToken();
+    };
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
   return (
     <>
       {"\n\n"}
@@ -182,171 +269,8 @@ export default function App() {
       </div>
       {"\n\n        "}
       {"\n        "}
-      <footer className={"site-footer"}>
-      {"\n            "}
-      <div className={"footer-inner"}>
-      {"\n                "}
-      <div className={"footer-cta"}>
-      {"\n                    "}
-      <div>
-      {"\n                        "}
-      <span className={"footer-eyebrow"}>
-      {"SIAP MAIN LAGI?"}
-      </span>
-      {"\n                        "}
-      <h2>
-      {"Top up game favoritmu "}
-      <span>
-      {"di sini."}
-      </span>
-      </h2>
-      {"\n                        "}
-      <p>
-      {"Pilih game, tentukan nominal, lalu ikuti langkah pembayaran."}
-      </p>
-      {"\n                    "}
-      </div>
-      {"\n                    "}
-      <button className={"footer-cta-button"} type={"button"} onClick={(event) => { document.getElementById('gamesGrid').scrollIntoView({behavior:'smooth',block:'start'}) }}>
-      {"\n                        Lihat katalog "}
-      <i className={"fas fa-arrow-down"} aria-hidden={"true"}>
-      </i>
-      {"\n                    "}
-      </button>
-      {"\n                "}
-      </div>
-      {"\n\n                "}
-      <div className={"footer-columns"}>
-      {"\n                    "}
-      <div className={"footer-brand"}>
-      {"\n                        "}
-      <button className={"footer-logo"} type={"button"} onClick={(event) => { legacy.showPage('dashboard'); legacy.setNavActive(document.getElementById('navHome')) }} aria-label={"TRIXIA, kembali ke beranda"}>
-      {"\n                            "}
-      <span className={"logo-icon"}>
-      {"⟁"}
-      </span>
-      {" TRI"}
-      <span>
-      {"XIA"}
-      </span>
-      {"\n                        "}
-      </button>
-      {"\n                        "}
-      <p>
-      {"Tempat top up game dan voucher digital. Pesanan dapat dibuat sebagai tamu, tanpa harus membuat akun terlebih dahulu."}
-      </p>
-      {"\n                        "}
-      <a className={"footer-social"} href={"https://www.instagram.com/trixia.for3_"} target={"_blank"} rel={"noopener noreferrer"}>
-      {"\n                            "}
-      <i className={"fab fa-instagram"} aria-hidden={"true"}>
-      </i>
-      {"\n                            "}
-      <span>
-      {"@trixia.for3_"}
-      </span>
-      {"\n                            "}
-      <i className={"fas fa-arrow-up-right-from-square footer-external-icon"} aria-hidden={"true"}>
-      </i>
-      {"\n                        "}
-      </a>
-      {"\n                    "}
-      </div>
-      {"\n\n                    "}
-      <nav className={"footer-links"} aria-label={"Tautan footer"}>
-      {"\n                        "}
-      <div className={"footer-link-group"}>
-      {"\n                            "}
-      <h3>
-      {"Jelajahi"}
-      </h3>
-      {"\n                            "}
-      <button type={"button"} onClick={(event) => { legacy.showPage('dashboard'); legacy.setNavActive(document.getElementById('navHome')); window.scrollTo({top:0,behavior:'smooth'}) }}>
-      {"Beranda"}
-      </button>
-      {"\n                            "}
-      <button type={"button"} onClick={(event) => { document.getElementById('gamesGrid').scrollIntoView({behavior:'smooth',block:'start'}) }}>
-      {"Katalog game"}
-      </button>
-      {"\n                            "}
-      <button type={"button"} onClick={(event) => { legacy.showPage('statusPage'); legacy.setNavActive(document.getElementById('navStatus')) }}>
-      {"Cek status pesanan"}
-      </button>
-      {"\n                        "}
-      </div>
-      {"\n                        "}
-      <div className={"footer-link-group"}>
-      {"\n                            "}
-      <h3>
-      {"Akun & bantuan"}
-      </h3>
-      {"\n                            "}
-      <button type={"button"} onClick={(event) => { legacy.openAccount() }}>
-      {"Profil dan riwayat"}
-      </button>
-      {"\n                            "}
-      <button type={"button"} onClick={(event) => { legacy.toggleCS() }}>
-      {"Bantuan pelanggan"}
-      </button>
-      {"\n                            "}
-      <button type={"button"} onClick={(event) => { legacy.openCSChat() }}>
-      {"Live chat"}
-      </button>
-      {"\n                        "}
-      </div>
-      {"\n                    "}
-      </nav>
-      {"\n\n                    "}
-      <div className={"footer-payment"}>
-      {"\n                        "}
-      <h3>
-      {"Metode pembayaran"}
-      </h3>
-      {"\n                        "}
-      <p>
-      {"Pilih channel yang tersedia saat checkout."}
-      </p>
-      {"\n                        "}
-      <div className={"footer-payment-badges"} aria-label={"QRIS, DANA, OVO"}>
-      {"\n                            "}
-      <span>
-      {"QRIS"}
-      </span>
-      {"\n                            "}
-      <span>
-      {"DANA"}
-      </span>
-      {"\n                            "}
-      <span>
-      {"OVO"}
-      </span>
-      {"\n                        "}
-      </div>
-      {"\n                        "}
-      <small>
-      {"Pembayaran diverifikasi admin setelah bukti transfer dikirim."}
-      </small>
-      {"\n                    "}
-      </div>
-      {"\n                "}
-      </div>
-      {"\n\n                "}
-      <div className={"footer-bottom"}>
-      {"\n                    "}
-      <span>
-      {"© 2026 TRIXIA. Seluruh hak cipta dilindungi."}
-      </span>
-      {"\n                    "}
-      <span className={"footer-bottom-note"}>
-      <i className={"fas fa-shield-alt"} aria-hidden={"true"}>
-      </i>
-      {" Simpan nomor pesanan untuk cek status."}
-      </span>
-      {"\n                "}
-      </div>
-      {"\n            "}
-      </div>
-      {"\n        "}
-      </footer>
+      <SiteFooter />
+    
       {"\n    "}
       </section>
       {"\n\n    "}
@@ -709,7 +633,16 @@ export default function App() {
       </i>
       </div>
       {"\n                "}
-      <h2 id={"accountFormTitle"}>
+      
+                <div className={"auth-mode-tabs"}>
+                    <button type={"button"} id={"tabAuthLogin"} className={"auth-mode-tab active"} data-account-mode={"login"} onClick={() => legacy.setAccountMode('login')}>
+                        {"Login"}
+                    </button>
+                    <button type={"button"} id={"tabAuthRegister"} className={"auth-mode-tab"} data-account-mode={"register"} onClick={() => legacy.setAccountMode('register')}>
+                        {"Daftar Akun"}
+                    </button>
+                </div>
+                <h2 id={"accountFormTitle"}>
       {"Login TRIXIA"}
       </h2>
       {"\n                "}
@@ -727,7 +660,7 @@ export default function App() {
       {"\n                    "}
       <div className={"input-wrap account-field"} id={"accountUsernameField"} style={{"display": "none"}}>
       {"\n                        "}
-      <input type={"text"} id={"accountUsername"} placeholder={"Username (3–30 huruf, angka, atau _)"} minLength={"3"} maxLength={"30"} pattern={"[A-Za-z0-9_]{3,30}"} title={"Gunakan 3–30 huruf, angka, atau garis bawah."} autoComplete={"nickname"} />
+      <input type={"text"} id={"accountUsername"} placeholder={"Username (3–30 huruf, angka, atau _)"} minLength={"3"} maxLength={"30"}  autoComplete={"nickname"} />
       {"\n                    "}
       </div>
       {"\n                    "}
@@ -838,6 +771,11 @@ export default function App() {
       </i>
       {"\n                    "}
       </button>
+                    <p className={"account-switch"}>
+                        <button type={"button"} onClick={() => legacy.setAccountMode('login')}>
+                            {"Batal dan kembali ke login"}
+                        </button>
+                    </p>
       {"\n                "}
       </form>
       {"\n            "}
@@ -1032,6 +970,7 @@ export default function App() {
       {"\n        "}
       </div>
       {"\n    "}
+              <SiteFooter />
       </section>
       {"\n\n    "}
       {/*  PAYMENT PAGE  */}
@@ -1073,32 +1012,32 @@ export default function App() {
       {"\n                "}
       </div>
       {"\n\n                "}
-      <div className={"upload-zone"} onClick={(event) => { document.getElementById('buktiInput').click() }} id={"uploadZone"}>
+      <div className={"upload-zone"} onClick={(event) => { document.getElementById('buktiInput').click(); }} id={"uploadZone"}>
       {"\n                    "}
       <i className={"fas fa-cloud-upload-alt upload-icon"}>
       </i>
       {"\n                    "}
-      <p>
+      <p id={"uploadZoneTitle"}>
       {"Upload bukti transfer"}
       </p>
       {"\n                    "}
-      <span>
-      {"Klik untuk memilih gambar"}
+      <span id={"uploadZoneSub"}>
+      {"Klik untuk memilih gambar (JPG, PNG, WEBP, GIF maks 2MB)"}
       </span>
       {"\n                    "}
-      <input type={"file"} id={"buktiInput"} hidden={true} accept={"image/jpeg,image/png,image/webp,image/gif"} />
+      <img id={"uploadPreviewImg"} alt={"Preview Bukti"} style={{"display": "none", "maxWidth": "180px", "maxHeight": "140px", "borderRadius": "8px", "marginTop": "10px", "border": "1px solid var(--border-accent)"}} />
+      {"\n                    "}
+      <input type={"file"} id={"buktiInput"} style={{"display": "none"}} accept={"image/jpeg,image/png,image/webp,image/gif"} onClick={(e) => e.stopPropagation()} onChange={(e) => { legacy.handleBuktiUpload(e); }} />
       {"\n                "}
       </div>
       {"\n\n                "}
       <button className={"btn-primary"} onClick={(event) => { legacy.saveOrderToDatabase() }}>
-      {"\n                    "}
-      <span>
-      {"Verifikasi Pembayaran"}
-      </span>
-      {" "}
-      <i className={"fas fa-check"}>
-      </i>
-      {"\n                "}
+                    <span>
+                    {"Konfirmasi Pembayaran"}
+                    </span>
+                    {" "}
+                    <i className={"fas fa-check-circle"}>
+                    </i>
       </button>
       {"\n            "}
       </div>
@@ -1109,549 +1048,299 @@ export default function App() {
       {"\n\n    "}
       {/*  ADMIN PAGE  */}
       {"\n    "}
+      {/*  ADMIN PAGE  */}
       <section id={"adminPage"} className={"page"}>
-      {"\n        "}
-      <div className={"container"}>
-      {"\n            "}
-      <div className={"admin-header"}>
-      {"\n                "}
-      <div>
-      {"\n                    "}
-      <h2>
-      {"Dashboard Admin"}
-      </h2>
-      {"\n                    "}
-      <p className={"text-dim"}>
-      {"Kelola semua transaksi"}
-      </p>
-      {"\n                "}
-      </div>
-      {"\n                "}
-      <button className={"btn-outline"} onClick={(event) => { legacy.logoutAdmin() }}>
-      <i className={"fas fa-sign-out-alt"}>
-      </i>
-      {" Keluar"}
-      </button>
-      {"\n            "}
-      </div>
-      {"\n\n            "}
-      <div className={"admin-stats"}>
-      {"\n                "}
-      <div className={"stat-card"}>
-      {"\n                    "}
-      <div className={"stat-icon"}>
-      <i className={"fas fa-box"}>
-      </i>
-      </div>
-      {"\n                    "}
-      <div className={"stat-info"}>
-      {"\n                        "}
-      <span className={"stat-num"} id={"totalOrders"}>
-      {"0"}
-      </span>
-      {"\n                        "}
-      <span className={"stat-label"}>
-      {"Total Pesanan"}
-      </span>
-      {"\n                    "}
-      </div>
-      {"\n                "}
-      </div>
-      {"\n                "}
-      <div className={"stat-card warning"}>
-      {"\n                    "}
-      <div className={"stat-icon"}>
-      <i className={"fas fa-clock"}>
-      </i>
-      </div>
-      {"\n                    "}
-      <div className={"stat-info"}>
-      {"\n                        "}
-      <span className={"stat-num"} id={"pendingOrders"}>
-      {"0"}
-      </span>
-      {"\n                        "}
-      <span className={"stat-label"}>
-      {"Pending"}
-      </span>
-      {"\n                    "}
-      </div>
-      {"\n                "}
-      </div>
-      {"\n                "}
-      <div className={"stat-card processing"}>
-      {"\n                    "}
-      <div className={"stat-icon"}>
-      <i className={"fas fa-cog fa-spin"}>
-      </i>
-      </div>
-      {"\n                    "}
-      <div className={"stat-info"}>
-      {"\n                        "}
-      <span className={"stat-num"} id={"processingOrders"}>
-      {"0"}
-      </span>
-      {"\n                        "}
-      <span className={"stat-label"}>
-      {"Diproses"}
-      </span>
-      {"\n                    "}
-      </div>
-      {"\n                "}
-      </div>
-      {"\n                "}
-      <div className={"stat-card success"}>
-      {"\n                    "}
-      <div className={"stat-icon"}>
-      <i className={"fas fa-check-circle"}>
-      </i>
-      </div>
-      {"\n                    "}
-      <div className={"stat-info"}>
-      {"\n                        "}
-      <span className={"stat-num"} id={"successOrders"}>
-      {"0"}
-      </span>
-      {"\n                        "}
-      <span className={"stat-label"}>
-      {"Berhasil"}
-      </span>
-      {"\n                    "}
-      </div>
-      {"\n                "}
-      </div>
-      {"\n            "}
-      </div>
-      {"\n\n            "}
-      <section className={"admin-orders"} aria-labelledby={"activeOrdersTitle"}>
-      {"\n                "}
-      <div className={"admin-orders-header"}>
-      {"\n                    "}
-      <div>
-      {"\n                        "}
-      <h3 id={"activeOrdersTitle"}>
-      {"Pesanan Masuk"}
-      </h3>
-      {"\n                        "}
-      <p>
-      {"Pesanan yang masih menunggu atau sedang diproses."}
-      </p>
-      {"\n                    "}
-      </div>
-      {"\n                "}
-      </div>
-      {"\n                "}
-      <div id={"adminList"} aria-live={"polite"}>
-      </div>
-      {"\n            "}
-      </section>
-      {"\n\n            "}
-      <details className={"admin-order-archive"}>
-      {"\n                "}
-      <summary>
-      {"\n                    "}
-      <span>
-      <i className={"fas fa-box-archive"}>
-      </i>
-      {" Arsip Pesanan Selesai"}
-      </span>
-      {"\n                    "}
-      <span className={"archive-count"} id={"adminArchiveCount"}>
-      {"0"}
-      </span>
-      {"\n                "}
-      </summary>
-      {"\n                "}
-      <div id={"archiveList"} aria-live={"polite"}>
-      {"\n                    "}
-      <p className={"admin-orders-empty"}>
-      {"Belum ada pesanan selesai."}
-      </p>
-      {"\n                "}
-      </div>
-      {"\n            "}
-      </details>
-      {"\n\n            "}
-      <section className={"sales-report"} aria-labelledby={"salesReportTitle"}>
-      {"\n                "}
-      <div className={"sales-report-header"}>
-      {"\n                    "}
-      <div>
-      {"\n                        "}
-      <h3 id={"salesReportTitle"}>
-      {"Laporan TRIXIA"}
-      </h3>
-      {"\n                        "}
-      <p>
-      {"Pilih grafik pemasukan, pengguna, atau performa per game untuk periode terpilih."}
-      </p>
-      {"\n                    "}
-      </div>
-      {"\n                    "}
-      <button className={"btn-outline"} type={"button"} onClick={(event) => { legacy.loadSalesReport() }}>
-      {"\n                        "}
-      <i className={"fas fa-sync-alt"}>
-      </i>
-      {" Perbarui\n                    "}
-      </button>
-      {"\n                "}
-      </div>
-      {"\n\n                "}
-      <div className={"report-controls"}>
-      {"\n                    "}
-      <div className={"report-period-tabs"} role={"tablist"} aria-label={"Periode laporan"}>
-      {"\n                        "}
-      <button className={"report-period-btn active"} type={"button"} role={"tab"} aria-selected={"true"} data-period={"daily"} onClick={(event) => { legacy.setSalesReportPeriod('daily', event.currentTarget) }}>
-      {"Harian"}
-      </button>
-      {"\n                        "}
-      <button className={"report-period-btn"} type={"button"} role={"tab"} aria-selected={"false"} data-period={"monthly"} onClick={(event) => { legacy.setSalesReportPeriod('monthly', event.currentTarget) }}>
-      {"Bulanan"}
-      </button>
-      {"\n                        "}
-      <button className={"report-period-btn"} type={"button"} role={"tab"} aria-selected={"false"} data-period={"yearly"} onClick={(event) => { legacy.setSalesReportPeriod('yearly', event.currentTarget) }}>
-      {"Tahunan"}
-      </button>
-      {"\n                    "}
-      </div>
-      {"\n                    "}
-      <form id={"salesReportFilter"} className={"report-filter"} onSubmit={(event) => { event.preventDefault(); legacy.loadSalesReport() }}>
-      {"\n                        "}
-      <label id={"reportDailyFilter"}>
-      {"Tanggal\n                            "}
-      <input type={"date"} id={"reportDate"} />
-      {"\n                        "}
-      </label>
-      {"\n                        "}
-      <label id={"reportMonthlyFilter"} style={{"display": "none"}}>
-      {"Bulan\n                            "}
-      <input type={"month"} id={"reportMonth"} />
-      {"\n                        "}
-      </label>
-      {"\n                        "}
-      <label id={"reportYearlyFilter"} style={{"display": "none"}}>
-      {"Tahun\n                            "}
-      <input type={"number"} id={"reportYear"} min={"2000"} max={"2100"} step={"1"} />
-      {"\n                        "}
-      </label>
-      {"\n                        "}
-      <button className={"btn-primary-sm report-apply"} type={"submit"} aria-label={"Terapkan filter laporan"} title={"Terapkan filter"}>
-      {"\n                            "}
-      <i className={"fas fa-filter"}>
-      </i>
-      {"\n                        "}
-      </button>
-      {"\n                    "}
-      </form>
-      {"\n                "}
-      </div>
-      {"\n\n                "}
-      <div className={"report-metric-tabs"} role={"tablist"} aria-label={"Jenis grafik laporan"}>
-      {"\n                    "}
-      <button className={"report-metric-btn active"} type={"button"} role={"tab"} aria-selected={"true"} data-metric={"revenue"} onClick={(event) => { legacy.setSalesReportMetric('revenue', event.currentTarget) }}>
-      {"\n                        "}
-      <i className={"fas fa-coins"}>
-      </i>
-      {" Pemasukan\n                    "}
-      </button>
-      {"\n                    "}
-      <button className={"report-metric-btn"} type={"button"} role={"tab"} aria-selected={"false"} data-metric={"users"} onClick={(event) => { legacy.setSalesReportMetric('users', event.currentTarget) }}>
-      {"\n                        "}
-      <i className={"fas fa-users"}>
-      </i>
-      {" Pengguna\n                    "}
-      </button>
-      {"\n                    "}
-      <button className={"report-metric-btn"} type={"button"} role={"tab"} aria-selected={"false"} data-metric={"games"} onClick={(event) => { legacy.setSalesReportMetric('games', event.currentTarget) }}>
-      {"\n                        "}
-      <i className={"fas fa-gamepad"}>
-      </i>
-      {" Per Game\n                    "}
-      </button>
-      {"\n                "}
-      </div>
-      {"\n\n                "}
-      <div id={"salesReportContent"} aria-live={"polite"}>
-      {"\n                    "}
-      <p className={"report-message"}>
-      {"Pilih periode untuk memuat laporan."}
-      </p>
-      {"\n                "}
-      </div>
-      {"\n            "}
-      </section>
-      {"\n        "}
-      </div>
-      {"\n    "}
+        <div className={"container"}>
+            <div className={"admin-header"}>
+                <div>
+                    <h2>{"Dashboard Admin"}</h2>
+                    <p className={"text-dim"}>
+                        {"Kelola verifikasi pembayaran & antrean transaksi"}
+                    </p>
+                </div>
+                <div className={"admin-header-actions"}>
+                    <button id={"btnAdminAutoRefresh"} className={"btn-outline"} type={"button"} onClick={() => { legacy.toggleAdminAutoRefresh(); }} style={{"fontSize": "12px"}}>
+                        <i className={"fas fa-sync-alt fa-spin"} id={"adminAutoIcon"}></i>
+                        {" "}
+                        <span id={"adminAutoText"}>{"Auto (5s): ON"}</span>
+                    </button>
+                    <button className={"btn-outline"} type={"button"} onClick={() => { legacy.refreshAdminOrders(); legacy.loadSalesReport(); }} title={"Muat Ulang Data"}>
+                        <i className={"fas fa-redo-alt"}></i>
+                    </button>
+                    <button className={"btn-outline btn-danger"} type={"button"} onClick={() => { legacy.logoutAdmin(); }}>
+                        <i className={"fas fa-sign-out-alt"}></i>
+                        {" Keluar"}
+                    </button>
+                </div>
+            </div>
+
+            {/*  Navigasi Tab: Antrean Pesanan vs Laporan Penjualan  */}
+            <div className={"admin-tab-nav"}>
+                <button id={"tabBtnOrders"} className={"admin-tab-btn active"} type={"button"} onClick={() => { legacy.setAdminTab('orders'); }}>
+                    <i className={"fas fa-list-ul"}></i>
+                    <span>{"Antrean Pesanan"}</span>
+                    <span className={"chip-count"} id={"badgeTabOrders"}>{"0"}</span>
+                </button>
+                <button id={"tabBtnReports"} className={"admin-tab-btn"} type={"button"} onClick={() => { legacy.setAdminTab('reports'); }}>
+                    <i className={"fas fa-chart-line"}></i>
+                    <span>{"Laporan Penjualan"}</span>
+                </button>
+            </div>
+
+            {/*  TAB 1: ANTREAN PESANAN  */}
+            <div id={"adminTabOrdersSection"}>
+                <div className={"admin-toolbar"}>
+                    <div className={"admin-search-wrap"}>
+                        <i className={"fas fa-search"}></i>
+                        <input
+                            type={"text"}
+                            id={"adminSearchInput"}
+                            className={"admin-search-input"}
+                            placeholder={"Cari No. Order, Game, ID, Nick..."}
+                            onInput={(e) => { legacy.handleAdminSearch(e.target.value); }}
+                        />
+                    </div>
+                    <div className={"admin-filter-chips"}>
+                        <button className={"admin-filter-chip active chip-all"} id={"chipFilterAll"} type={"button"} onClick={() => { legacy.setAdminStatusFilter('all'); }}>
+                            <span>{"Semua"}</span>
+                            <span className={"chip-count"} id={"countFilterAll"}>{"0"}</span>
+                        </button>
+                        <button className={"admin-filter-chip chip-pending"} id={"chipFilterPending"} type={"button"} onClick={() => { legacy.setAdminStatusFilter('Pending'); }}>
+                            <span style={{"color": "var(--gold)"}}>{"Pending"}</span>
+                            <span className={"chip-count"} id={"countFilterPending"}>{"0"}</span>
+                        </button>
+                        <button className={"admin-filter-chip chip-processing"} id={"chipFilterProcessing"} type={"button"} onClick={() => { legacy.setAdminStatusFilter('Processing'); }}>
+                            <span style={{"color": "#63b3ed"}}>{"Diproses"}</span>
+                            <span className={"chip-count"} id={"countFilterProcessing"}>{"0"}</span>
+                        </button>
+                        <button className={"admin-filter-chip chip-success"} id={"chipFilterSuccess"} type={"button"} onClick={() => { legacy.setAdminStatusFilter('Success'); }}>
+                            <span style={{"color": "var(--accent)"}}>{"Selesai"}</span>
+                            <span className={"chip-count"} id={"countFilterSuccess"}>{"0"}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id={"adminList"} aria-live={"polite"}>
+                </div>
+            </div>
+
+            {/*  TAB 2: LAPORAN PENJUALAN  */}
+            <div id={"adminTabReportsSection"} style={{"display": "none"}}>
+                <section className={"sales-report"} aria-labelledby={"salesReportTitle"}>
+                    <div className={"sales-report-header"}>
+                        <div>
+                            <h3 id={"salesReportTitle"}>{"Laporan Penjualan"}</h3>
+                        </div>
+                        <button className={"btn-outline"} type={"button"} onClick={() => { legacy.loadSalesReport(); }}>
+                            <i className={"fas fa-sync-alt"}></i>
+                            {" Perbarui"}
+                        </button>
+                    </div>
+
+                    <div className={"report-controls"}>
+                        <div className={"report-period-tabs"} role={"tablist"} aria-label={"Periode laporan"}>
+                            <button className={"report-period-btn active"} type={"button"} role={"tab"} aria-selected={"true"} data-period={"daily"} onClick={(event) => { legacy.setSalesReportPeriod('daily', event.currentTarget); }}>
+                                {"Harian"}
+                            </button>
+                            <button className={"report-period-btn"} type={"button"} role={"tab"} aria-selected={"false"} data-period={"monthly"} onClick={(event) => { legacy.setSalesReportPeriod('monthly', event.currentTarget); }}>
+                                {"Bulanan"}
+                            </button>
+                            <button className={"report-period-btn"} type={"button"} role={"tab"} aria-selected={"false"} data-period={"yearly"} onClick={(event) => { legacy.setSalesReportPeriod('yearly', event.currentTarget); }}>
+                                {"Tahunan"}
+                            </button>
+                        </div>
+
+                        <form id={"salesReportFilter"} className={"report-filter"} onSubmit={(event) => { event.preventDefault(); legacy.loadSalesReport(); }}>
+                            <label id={"reportDailyFilter"}>
+                                {"Tanggal\n                            "}
+                                <input type={"date"} id={"reportDate"} />
+                            </label>
+                            <label id={"reportMonthlyFilter"} style={{"display": "none"}}>
+                                {"Bulan\n                            "}
+                                <input type={"month"} id={"reportMonth"} />
+                            </label>
+                            <label id={"reportYearlyFilter"} style={{"display": "none"}}>
+                                {"Tahun\n                            "}
+                                <input type={"number"} id={"reportYear"} min={"2000"} max={"2100"} step={"1"} />
+                            </label>
+                            <button className={"btn-primary-sm report-apply"} type={"submit"} aria-label={"Terapkan filter laporan"} title={"Terapkan filter"}>
+                                <i className={"fas fa-filter"}></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div className={"report-metric-tabs"} role={"tablist"} aria-label={"Jenis grafik laporan"}>
+                        <button className={"report-metric-btn active"} type={"button"} role={"tab"} aria-selected={"true"} data-metric={"revenue"} onClick={(event) => { legacy.setSalesReportMetric('revenue', event.currentTarget); }}>
+                            <i className={"fas fa-coins"}></i>
+                            {" Pemasukan"}
+                        </button>
+                        <button className={"report-metric-btn"} type={"button"} role={"tab"} aria-selected={"false"} data-metric={"users"} onClick={(event) => { legacy.setSalesReportMetric('users', event.currentTarget); }}>
+                            <i className={"fas fa-users"}></i>
+                            {" Pengguna"}
+                        </button>
+                        <button className={"report-metric-btn"} type={"button"} role={"tab"} aria-selected={"false"} data-metric={"games"} onClick={(event) => { legacy.setSalesReportMetric('games', event.currentTarget); }}>
+                            <i className={"fas fa-gamepad"}></i>
+                            {" Per Game"}
+                        </button>
+                    </div>
+
+                    <div id={"salesReportContent"} aria-live={"polite"}>
+                        <p className={"report-message"}>{"Pilih periode untuk memuat laporan."}</p>
+                    </div>
+                </section>
+            </div>
+        </div>
       </section>
       {"\n\n    "}
       {/*  INVOICE PAGE  */}
-      {"\n    "}
       <section id={"invoicePage"} className={"page"}>
-      {"\n        "}
-      <div className={"container small-container"}>
-      {"\n            "}
-      <div className={"glass-card"} id={"invoiceCard"}>
-      {"\n                "}
-      {/*  Invoice Header  */}
-      {"\n                "}
-      <div className={"invoice-header"}>
-      {"\n                    "}
-      <div className={"invoice-brand"}>
-      {"\n                        "}
-      <span className={"logo-icon"} style={{"fontSize": "28px", "color": "var(--accent)"}}>
-      {"⬠"}
-      </span>
-      {"\n                        "}
-      <span className={"invoice-brand-name"}>
-      {"TRI"}
-      <span style={{"color": "var(--accent)"}}>
-      {"XIA"}
-      </span>
-      </span>
-      {"\n                    "}
-      </div>
-      {"\n                    "}
-      <div className={"invoice-badge"}>
-      {"\n                        "}
-      <i className={"fas fa-check-circle"}>
-      </i>
-      {" PEMBAYARAN DIKIRIM\n                    "}
-      </div>
-      {"\n                "}
-      </div>
-      {"\n\n                "}
-      <div className={"invoice-divider"}>
-      </div>
-      {"\n\n                "}
-      {/*  Order ID & Date  */}
-      {"\n                "}
-      <div className={"invoice-meta"}>
-      {"\n                    "}
-      <div>
-      {"\n                        "}
-      <p className={"inv-label"}>
-      {"No. Order"}
-      </p>
-      {"\n                        "}
-      <p className={"inv-value mono"} id={"inv-orderId"}>
-      {"#000000"}
-      </p>
-      {"\n                    "}
-      </div>
-      {"\n                    "}
-      <div style={{"textAlign": "right"}}>
-      {"\n                        "}
-      <p className={"inv-label"}>
-      {"Tanggal"}
-      </p>
-      {"\n                        "}
-      <p className={"inv-value"} id={"inv-date"}>
-      {"-"}
-      </p>
-      {"\n                    "}
-      </div>
-      {"\n                "}
-      </div>
-      {"\n\n                "}
-      <div className={"invoice-divider"}>
-      </div>
-      {"\n\n                "}
-      {/*  Detail Rows  */}
-      {"\n                "}
-      <div className={"invoice-rows"}>
-      {"\n                    "}
-      <div className={"inv-row"}>
-      {"\n                        "}
-      <span className={"inv-row-label"}>
-      <i className={"fas fa-gamepad"}>
-      </i>
-      {" Game"}
-      </span>
-      {"\n                        "}
-      <span className={"inv-row-val"} id={"inv-game"}>
-      {"-"}
-      </span>
-      {"\n                    "}
-      </div>
-      {"\n                    "}
-      <div className={"inv-row"}>
-      {"\n                        "}
-      <span className={"inv-row-label"}>
-      <i className={"fas fa-coins"}>
-      </i>
-      {" Nominal"}
-      </span>
-      {"\n                        "}
-      <span className={"inv-row-val"} id={"inv-nominal"}>
-      {"-"}
-      </span>
-      {"\n                    "}
-      </div>
-      {"\n                    "}
-      <div className={"inv-row"} id={"inv-username-row"} style={{"display": "none"}}>
-      {"\n                        "}
-      <span className={"inv-row-label"}>
-      <i className={"fas fa-id-badge"}>
-      </i>
-      {" Username Game"}
-      </span>
-      {"\n                        "}
-      <span className={"inv-row-val"} id={"inv-username"}>
-      {"-"}
-      </span>
-      {"\n                    "}
-      </div>
-      {"\n                    "}
-      <div className={"inv-row"} id={"inv-account-username-row"} style={{"display": "none"}}>
-      {"\n                        "}
-      <span className={"inv-row-label"}>
-      <i className={"fas fa-user-tag"}>
-      </i>
-      {" Username TRIXIA"}
-      </span>
-      {"\n                        "}
-      <span className={"inv-row-val"} id={"inv-account-username"}>
-      {"-"}
-      </span>
-      {"\n                    "}
-      </div>
-      {"\n                    "}
-      <div className={"inv-row"}>
-      {"\n                        "}
-      <span className={"inv-row-label"}>
-      <i className={"fas fa-user"}>
-      </i>
-      {" User ID"}
-      </span>
-      {"\n                        "}
-      <span className={"inv-row-val mono"} id={"inv-userId"}>
-      {"-"}
-      </span>
-      {"\n                    "}
-      </div>
-      {"\n                    "}
-      <div className={"inv-row"}>
-      {"\n                        "}
-      <span className={"inv-row-label"}>
-      <i className={"fas fa-server"}>
-      </i>
-      {" Server ID"}
-      </span>
-      {"\n                        "}
-      <span className={"inv-row-val mono"} id={"inv-serverId"}>
-      {"-"}
-      </span>
-      {"\n                    "}
-      </div>
-      {"\n                    "}
-      <div className={"inv-row"}>
-      {"\n                        "}
-      <span className={"inv-row-label"}>
-      <i className={"fas fa-wallet"}>
-      </i>
-      {" Metode Bayar"}
-      </span>
-      {"\n                        "}
-      <span className={"inv-row-val"} id={"inv-payment"}>
-      {"-"}
-      </span>
-      {"\n                    "}
-      </div>
-      {"\n                "}
-      </div>
-      {"\n\n                "}
-      <div className={"invoice-divider"}>
-      </div>
-      {"\n\n                "}
-      {/*  Total  */}
-      {"\n                "}
-      <div className={"invoice-total"}>
-      {"\n                    "}
-      <span>
-      {"Total Pembayaran"}
-      </span>
-      {"\n                    "}
-      <span className={"inv-total-amount"} id={"inv-harga"}>
-      {"-"}
-      </span>
-      {"\n                "}
-      </div>
-      {"\n\n                "}
-      <div className={"invoice-divider"}>
-      </div>
-      {"\n\n                "}
-      {/*  Status & Reference  */}
-      {"\n                "}
-      <div className={"invoice-status-row"}>
-      {"\n                    "}
-      <div className={"invoice-status-pill"} id={"inv-status-pill"}>
-      {"\n                        "}
-      <span className={"pulse-dot"} id={"inv-status-dot"}>
-      </span>
-      {" Menunggu Verifikasi Admin\n                    "}
-      </div>
-      {"\n                    "}
-      <p className={"inv-ref"}>
-      {"Ref: "}
-      <span className={"mono"} id={"inv-orderKey"} style={{"fontSize": "10px", "color": "var(--text-dim)"}}>
-      {"-"}
-      </span>
-      </p>
-      {"\n                "}
-      </div>
-      {"\n\n                "}
-      {/*  Banner sukses (tersembunyi dulu)  */}
-      {"\n                "}
-      <div className={"invoice-success-banner"} id={"inv-success-banner"} style={{"display": "none"}}>
-      {"\n                    "}
-      <i className={"fas fa-check-circle"}>
-      </i>
-      {"\n                    "}
-      <span>
-      {"Pembayaran kamu telah "}
-      <strong>
-      {"dikonfirmasi"}
-      </strong>
-      {" oleh admin!"}
-      </span>
-      {"\n                "}
-      </div>
-      {"\n\n                "}
-      <p className={"invoice-note"} id={"inv-note"}>
-      {"\n                    ⏳ Top up akan diproses setelah admin memverifikasi pembayaran kamu."}
-      <br />
-      {"\n                    Simpan No. Order untuk cek status di menu "}
-      <strong>
-      {"Status"}
-      </strong>
-      {".\n                "}
-      </p>
-      {"\n            "}
-      </div>
-      {"\n\n            "}
-      {/*  Action Buttons  */}
-      {"\n            "}
-      <div className={"invoice-actions"}>
-      {"\n                "}
-      <button className={"btn-invoice-download"} onClick={(event) => { legacy.downloadInvoice() }}>
-      {"\n                    "}
-      <i className={"fas fa-download"}>
-      </i>
-      {" Simpan Invoice\n                "}
-      </button>
-      {"\n                "}
-      <button className={"btn-invoice-home"} onClick={(event) => { legacy.showPage('dashboard'); legacy.setNavActive(document.getElementById('navHome')) }}>
-      {"\n                    "}
-      <i className={"fas fa-home"}>
-      </i>
-      {" Kembali ke Beranda\n                "}
-      </button>
-      {"\n            "}
-      </div>
-      {"\n        "}
-      </div>
-      {"\n    "}
+        <div className={"container small-container"}>
+            <div className={"glass-card"} id={"invoiceCard"}>
+                {/*  Invoice Header  */}
+                <div className={"invoice-header"}>
+                    <div className={"invoice-brand"}>
+                        <span className={"logo-icon"} style={{"fontSize": "28px", "color": "var(--accent)"}}>
+                            {"⬠"}
+                        </span>
+                        <span className={"invoice-brand-name"}>
+                            {"TRI"}
+                            <span style={{"color": "var(--accent)"}}>
+                                {"XIA"}
+                            </span>
+                        </span>
+                    </div>
+                    <div className={"invoice-badge"}>
+                        <i className={"fas fa-check-circle"}></i>
+                        {" PEMBAYARAN DIKIRIM"}
+                    </div>
+                </div>
+
+                <div className={"invoice-divider"}></div>
+
+                {/*  Order ID & Date  */}
+                <div className={"invoice-meta"}>
+                    <div>
+                        <p className={"inv-label"}>{"No. Order"}</p>
+                        <p className={"inv-value mono"} id={"inv-orderId"}>{"#000000"}</p>
+                    </div>
+                    <div style={{"textAlign": "right"}}>
+                        <p className={"inv-label"}>{"Tanggal"}</p>
+                        <p className={"inv-value"} id={"inv-date"}>{"-"}</p>
+                    </div>
+                </div>
+
+                <div className={"invoice-divider"}></div>
+
+                {/*  Detail Rows  */}
+                <div className={"invoice-rows"}>
+                    <div className={"inv-row"}>
+                        <span className={"inv-row-label"}>
+                            <i className={"fas fa-gamepad"}></i>
+                            {" Game"}
+                        </span>
+                        <span className={"inv-row-val"} id={"inv-game"}>{"-"}</span>
+                    </div>
+                    <div className={"inv-row"}>
+                        <span className={"inv-row-label"}>
+                            <i className={"fas fa-coins"}></i>
+                            {" Nominal"}
+                        </span>
+                        <span className={"inv-row-val"} id={"inv-nominal"}>{"-"}</span>
+                    </div>
+                    <div className={"inv-row"} id={"inv-username-row"} style={{"display": "none"}}>
+                        <span className={"inv-row-label"}>
+                            <i className={"fas fa-id-badge"}></i>
+                            {" Nickname Game"}
+                        </span>
+                        <span className={"inv-row-val"} id={"inv-username"}>{"-"}</span>
+                    </div>
+                    <div className={"inv-row"} id={"inv-account-username-row"} style={{"display": "none"}}>
+                        <span className={"inv-row-label"}>
+                            <i className={"fas fa-user-tag"}></i>
+                            {" Akun TRIXIA"}
+                        </span>
+                        <span className={"inv-row-val"} id={"inv-account-username"}>{"-"}</span>
+                    </div>
+                    <div className={"inv-row"}>
+                        <span className={"inv-row-label"}>
+                            <i className={"fas fa-user"}></i>
+                            {" User ID"}
+                        </span>
+                        <span className={"inv-row-val mono"} id={"inv-userId"}>{"-"}</span>
+                    </div>
+                    <div className={"inv-row"}>
+                        <span className={"inv-row-label"}>
+                            <i className={"fas fa-server"}></i>
+                            {" Server ID"}
+                        </span>
+                        <span className={"inv-row-val mono"} id={"inv-serverId"}>{"-"}</span>
+                    </div>
+                    <div className={"inv-row"}>
+                        <span className={"inv-row-label"}>
+                            <i className={"fas fa-wallet"}></i>
+                            {" Metode Bayar"}
+                        </span>
+                        <span className={"inv-row-val"} id={"inv-payment"}>{"-"}</span>
+                    </div>
+                </div>
+
+                <div className={"invoice-divider"}></div>
+
+                {/*  Total  */}
+                <div className={"invoice-total"}>
+                    <span>{"Total Pembayaran"}</span>
+                    <span className={"inv-total-amount"} id={"inv-harga"}>{"-"}</span>
+                </div>
+
+                <div className={"invoice-divider"}></div>
+
+                {/*  Status & Reference  */}
+                <div className={"invoice-status-row"}>
+                    <div className={"invoice-status-pill"} id={"inv-status-pill"}>
+                        <span className={"pulse-dot"} id={"inv-status-dot"}></span>
+                        {" Menunggu Verifikasi Admin"}
+                    </div>
+                    <p className={"inv-ref"}>
+                        {"Ref: "}
+                        <span className={"mono"} id={"inv-orderKey"} style={{"fontSize": "10px", "color": "var(--text-dim)"}}>
+                            {"-"}
+                        </span>
+                        <button type={"button"} className={"btn-copy-ref"} style={{"background": "transparent", "border": "none", "color": "var(--accent)", "cursor": "pointer", "fontSize": "11px", "marginLeft": "6px"}} onClick={(event) => { legacy.copyOrderKey() }} title={"Salin Kode Referensi"}>
+                            <i className={"fas fa-copy"}></i>
+                        </button>
+                    </p>
+                </div>
+
+                {/*  Banner sukses (tersembunyi dulu)  */}
+                <div className={"invoice-success-banner"} id={"inv-success-banner"} style={{"display": "none"}}>
+                    <i className={"fas fa-check-circle"}></i>
+                    <span>
+                        {"Pembayaran kamu telah "}
+                        <strong>{"dikonfirmasi"}</strong>
+                        {" oleh admin!"}
+                    </span>
+                </div>
+
+                <p className={"invoice-note"} id={"inv-note"}>
+                    {"⏳ Top up akan diproses setelah admin memverifikasi pembayaran kamu."}
+                    <br />
+                    {"Simpan No. Order untuk cek status di menu "}
+                    <strong>{"Status"}</strong>{"."}
+                </p>
+            </div>
+
+            {/*  Action Buttons  */}
+            <div className={"invoice-actions"}>
+                <button className={"btn-invoice-download"} onClick={(event) => { legacy.downloadInvoice() }}>
+                    <i className={"fas fa-download"}></i>
+                    {" Simpan Struk (PDF)"}
+                </button>
+                <button className={"btn-invoice-home"} onClick={(event) => { legacy.showPage('dashboard'); legacy.setNavActive(document.getElementById('navHome')) }}>
+                    <i className={"fas fa-home"}></i>
+                    {" Kembali ke Beranda"}
+                </button>
+            </div>
+        </div>
       </section>
       {"\n\n"}
       </main>

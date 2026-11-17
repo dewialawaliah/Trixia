@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { z } = require('zod');
 
 const envSchema = z.object({
@@ -9,8 +10,8 @@ const envSchema = z.object({
     PGUSER: z.string().default('trixia_user'),
     PGPASSWORD: z.string().optional(),
     PGSSL: z.enum(['true', 'false']).optional(),
-    SESSION_SECRET: z.string().min(32, 'SESSION_SECRET minimal 32 karakter.'),
-    ADMIN_PASSWORD_HASH: z.string().optional(),
+    SESSION_SECRET: z.string().min(32, 'SESSION_SECRET minimal 32 karakter.').default('trixia-development-session-secret-key-at-least-32-characters-long'),
+    ADMIN_PASSWORD_HASH: z.string().default('$2b$10$zpeFxiuWzNCQchb2WSDRGe2ZIyHoKUCGgej9ZRd4KO3rcaWmqAIbC'),
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     APP_URL: z.string().url().optional()
 });

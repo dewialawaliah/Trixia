@@ -136,7 +136,49 @@ function setNavActive(btn) {
 // ============================================================
 //  INIT SAAT DOM SIAP
 // ============================================================
+function checkResetToken() {
+    var hash = (typeof window !== 'undefined' ? window.location.hash : '') || '';
+    var search = (typeof window !== 'undefined' ? window.location.search : '') || '';
+    var token = '';
+
+    try {
+        var hashClean = hash.replace(/^[#\/]+/, '');
+        var hashParams = new URLSearchParams(hashClean);
+        token = hashParams.get('reset') || hashParams.get('token') || '';
+        if (!token) {
+            var searchParams = new URLSearchParams(search);
+            token = searchParams.get('reset') || searchParams.get('token') || '';
+        }
+        if (!token && /^[a-f0-9]{64}$/i.test(hashClean)) {
+            token = hashClean;
+        }
+    } catch (e) {
+        console.error('Gagal membaca token reset:', e);
+    }
+
+    if (token) {
+        pendingPasswordResetToken = token;
+        setAccountMode('reset');
+        showPage('accountPage');
+        var authPanel = document.getElementById('accountAuthPanel');
+        var profilePanel = document.getElementById('accountProfilePanel');
+        if (authPanel) authPanel.style.display = '';
+        if (profilePanel) profilePanel.style.display = 'none';
+        var navAccount = document.getElementById('navAccount');
+        if (navAccount) setNavActive(navAccount);
+        var resetForm = document.getElementById('resetPasswordForm');
+        if (resetForm) {
+            resetForm.style.display = '';
+            var newPass = document.getElementById('newAccountPassword');
+            if (newPass) setTimeout(function() { newPass.focus(); }, 200);
+        }
+        return true;
+    }
+    return false;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
+    if (checkResetToken()) return;
     apiRequest('user-session')
         .then(function (result) {
             currentUser = result.user;
@@ -371,39 +413,79 @@ function setAccountMode(mode) {
     var usernameField = document.getElementById('accountUsernameField');
     var usernameInput = document.getElementById('accountUsername');
     var passwordInput = document.getElementById('accountPassword');
-    nameField.style.display = registering ? '' : 'none';
-    nameInput.required = registering;
-    usernameField.style.display = registering ? '' : 'none';
-    usernameInput.required = registering;
-    document.getElementById('accountForm').style.display = loginOrRegister ? '' : 'none';
-    document.getElementById('accountSwitchText').style.display = loginOrRegister ? '' : 'none';
-    document.getElementById('forgotPasswordLink').style.display = accountMode === 'login' ? '' : 'none';
-    document.getElementById('forgotPasswordForm').style.display = accountMode === 'forgot' ? '' : 'none';
-    document.getElementById('resetPasswordForm').style.display = accountMode === 'reset' ? '' : 'none';
-    document.getElementById('accountContact').required = loginOrRegister;
-    document.getElementById('accountContact').placeholder = registering
-        ? 'Email atau nomor telepon'
-        : 'Email, nomor telepon, atau username';
-    passwordInput.required = loginOrRegister;
-    passwordInput.minLength = registering ? 8 : 0;
-    passwordInput.autocomplete = registering ? 'new-password' : 'current-password';
-    passwordInput.placeholder = registering ? 'Password (minimal 8 karakter)' : 'Password';
-    document.getElementById('accountFormTitle').innerText = registering
-        ? 'Daftar TRIXIA'
-        : (accountMode === 'forgot' ? 'Lupa Password' : (accountMode === 'reset' ? 'Password Baru' : 'Login TRIXIA'));
-    document.getElementById('accountFormDescription').innerText = registering
-        ? 'Buat akun untuk menyimpan profil dan riwayat pesanan.'
-        : (accountMode === 'login'
-            ? 'Login untuk melihat profil dan riwayat pesanan.'
-            : (accountMode === 'forgot'
-                ? 'Kami akan mengirim tautan reset ke email yang terdaftar.'
-                : (accountMode === 'reset' ? 'Tautan reset berlaku selama satu jam.' : '')));
-    document.getElementById('accountSubmitButton').innerHTML = registering
-        ? '<span>Daftar</span> <i class="fas fa-user-plus"></i>'
-        : '<span>Login</span> <i class="fas fa-sign-in-alt"></i>';
-    document.getElementById('accountSwitchText').innerHTML = registering
-        ? 'Sudah punya akun? <button type="button" onclick="setAccountMode(\'login\')">Login</button>'
-        : 'Belum punya akun? <button type="button" onclick="setAccountMode(\'register\')">Daftar</button>';
+
+    var authTabs = document.querySelector('.auth-mode-tabs');
+    if (authTabs) {
+        authTabs.style.display = (accountMode === 'login' || accountMode === 'register') ? '' : 'none';
+    }
+
+    var tabLogin = document.getElementById('tabAuthLogin');
+    var tabReg = document.getElementById('tabAuthRegister');
+    if (tabLogin) tabLogin.className = (accountMode === 'login') ? 'auth-mode-tab active' : 'auth-mode-tab';
+    if (tabReg) tabReg.className = (accountMode === 'register') ? 'auth-mode-tab active' : 'auth-mode-tab';
+
+    var authPanel = document.getElementById('accountAuthPanel');
+    var profilePanel = document.getElementById('accountProfilePanel');
+    if (accountMode === 'reset') {
+        if (authPanel) authPanel.style.display = '';
+        if (profilePanel) profilePanel.style.display = 'none';
+    }
+
+    if (nameField) nameField.style.display = registering ? '' : 'none';
+    if (nameInput) nameInput.required = registering;
+    if (usernameField) usernameField.style.display = registering ? '' : 'none';
+    if (usernameInput) usernameInput.required = registering;
+    var accountForm = document.getElementById('accountForm');
+    if (accountForm) accountForm.style.display = loginOrRegister ? '' : 'none';
+    var accountSwitchText = document.getElementById('accountSwitchText');
+    if (accountSwitchText) accountSwitchText.style.display = loginOrRegister ? '' : 'none';
+    var forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    if (forgotPasswordLink) forgotPasswordLink.style.display = accountMode === 'login' ? '' : 'none';
+    var forgotPasswordForm = document.getElementById('forgotPasswordForm');
+    if (forgotPasswordForm) forgotPasswordForm.style.display = accountMode === 'forgot' ? '' : 'none';
+    var resetPasswordForm = document.getElementById('resetPasswordForm');
+    if (resetPasswordForm) resetPasswordForm.style.display = accountMode === 'reset' ? '' : 'none';
+
+    var accountContact = document.getElementById('accountContact');
+    if (accountContact) {
+        accountContact.required = loginOrRegister;
+        accountContact.placeholder = registering
+            ? 'Email atau nomor telepon'
+            : 'Email, nomor telepon, atau username';
+    }
+    if (passwordInput) {
+        passwordInput.required = loginOrRegister;
+        passwordInput.minLength = registering ? 8 : 0;
+        passwordInput.autocomplete = registering ? 'new-password' : 'current-password';
+        passwordInput.placeholder = registering ? 'Password (minimal 8 karakter)' : 'Password';
+    }
+    var formTitle = document.getElementById('accountFormTitle');
+    if (formTitle) {
+        formTitle.innerText = registering
+            ? 'Daftar TRIXIA'
+            : (accountMode === 'forgot' ? 'Lupa Password' : (accountMode === 'reset' ? 'Password Baru' : 'Login TRIXIA'));
+    }
+    var formDesc = document.getElementById('accountFormDescription');
+    if (formDesc) {
+        formDesc.innerText = registering
+            ? 'Buat akun untuk menyimpan profil dan riwayat pesanan.'
+            : (accountMode === 'login'
+                ? 'Login untuk melihat profil dan riwayat pesanan.'
+                : (accountMode === 'forgot'
+                    ? 'Kami akan mengirim tautan reset ke email yang terdaftar.'
+                    : (accountMode === 'reset' ? 'Masukkan password baru untuk akun kamu.' : '')));
+    }
+    var submitButton = document.getElementById('accountSubmitButton');
+    if (submitButton) {
+        submitButton.innerHTML = registering
+            ? '<span>Daftar</span> <i class="fas fa-user-plus"></i>'
+            : '<span>Login</span> <i class="fas fa-sign-in-alt"></i>';
+    }
+    if (accountSwitchText) {
+        accountSwitchText.innerHTML = registering
+            ? 'Sudah punya akun? <button type="button" onclick="setAccountMode(\'login\')">Login</button>'
+            : 'Belum punya akun? <button type="button" onclick="setAccountMode(\'register\')">Daftar</button>';
+    }
 }
 
 function toggleProfileEditor(open) {
@@ -453,14 +535,23 @@ function updateAccountUI() {
     var authPanel = document.getElementById('accountAuthPanel');
     var profilePanel = document.getElementById('accountProfilePanel');
     if (authPanel && profilePanel) {
-        authPanel.style.display = currentUser ? 'none' : '';
-        profilePanel.style.display = currentUser ? '' : 'none';
+        if (accountMode === 'reset') {
+            authPanel.style.display = '';
+            profilePanel.style.display = 'none';
+        } else {
+            authPanel.style.display = currentUser ? 'none' : '';
+            profilePanel.style.display = currentUser ? '' : 'none';
+        }
     }
     if (currentUser) {
-        document.getElementById('profileName').innerText = currentUser.name || '-';
-        document.getElementById('profileUsername').innerText = currentUser.username || '-';
-        document.getElementById('profileEmail').innerText = currentUser.email || 'Belum ditambahkan';
-        document.getElementById('profilePhone').innerText = currentUser.phone || 'Belum ditambahkan';
+        var elName = document.getElementById('profileName');
+        if (elName) elName.innerText = currentUser.name || '-';
+        var elUser = document.getElementById('profileUsername');
+        if (elUser) elUser.innerText = currentUser.username || '-';
+        var elEmail = document.getElementById('profileEmail');
+        if (elEmail) elEmail.innerText = currentUser.email || 'Belum ditambahkan';
+        var elPhone = document.getElementById('profilePhone');
+        if (elPhone) elPhone.innerText = currentUser.phone || 'Belum ditambahkan';
     }
 }
 
@@ -533,30 +624,35 @@ function requestPasswordReset() {
 }
 
 function submitPasswordReset() {
-    var password = document.getElementById('newAccountPassword').value;
-    var confirmation = document.getElementById('confirmAccountPassword').value;
+    var p1 = document.getElementById('newAccountPassword');
+    var p2 = document.getElementById('confirmAccountPassword');
+    var password = p1 ? p1.value : '';
+    var confirmation = p2 ? p2.value : '';
+    if (!password || password.length < 8) return toast('Password minimal 8 karakter.');
     if (password !== confirmation) return toast('Konfirmasi password tidak sama.');
     if (!pendingPasswordResetToken) return toast('Tautan reset tidak valid. Minta tautan baru.');
 
     var button = document.getElementById('resetPasswordButton');
-    button.disabled = true;
+    if (button) button.disabled = true;
     apiRequest('reset-password', {
         method: 'POST',
         body: { token: pendingPasswordResetToken, password: password }
     })
         .then(function () {
             pendingPasswordResetToken = '';
-            window.history.replaceState({}, document.title, window.location.pathname);
-            document.getElementById('newAccountPassword').value = '';
-            document.getElementById('confirmAccountPassword').value = '';
+            try {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } catch (e) {}
+            if (p1) p1.value = '';
+            if (p2) p2.value = '';
             setAccountMode('login');
-            toast('Password berhasil diubah. Silakan login.');
+            toast('Password berhasil diubah. Silakan login dengan password baru.');
         })
         .catch(function (err) {
-            toast(err.message);
+            toast(err.message || 'Gagal mengubah password.');
         })
         .finally(function () {
-            button.disabled = false;
+            if (button) button.disabled = false;
         });
 }
 
@@ -885,14 +981,17 @@ function logoutAdmin() {
 
 function loadAdmin() {
     var list = document.getElementById('adminList');
-    list.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:40px 0;">Memuat data...</p>';
+    if (list) list.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:40px 0;">Memuat data...</p>';
     adminListSignature = null;
     if (adminListener) clearInterval(adminListener);
     var now = new Date();
     var localDate = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');
-    document.getElementById('reportDate').value = localDate;
-    document.getElementById('reportMonth').value = localDate.slice(0, 7);
-    document.getElementById('reportYear').value = String(now.getFullYear());
+    var rDate = document.getElementById('reportDate');
+    var rMonth = document.getElementById('reportMonth');
+    var rYear = document.getElementById('reportYear');
+    if (rDate) rDate.value = localDate;
+    if (rMonth) rMonth.value = localDate.slice(0, 7);
+    if (rYear) rYear.value = String(now.getFullYear());
     refreshAdminOrders();
     loadSalesReport();
     adminListener = setInterval(refreshAdminOrders, 5000);
@@ -1146,40 +1245,60 @@ function renderSalesReport(report) {
 }
 
 function refreshAdminOrders() {
-    // Jangan polling saat tab tidak terlihat: hemat request dan CPU.
     if (document.hidden) return;
 
     var list = document.getElementById('adminList');
+    if (!list) return;
+
     var archive = document.getElementById('archiveList');
+
     apiRequest('admin-orders')
         .then(function (result) {
-            var orders = result.orders;
+            var orders = (result && result.orders) ? result.orders : [];
             var total = orders.length;
             var pending = orders.filter(function (o) { return o.status === 'Pending'; }).length;
             var processing = orders.filter(function (o) { return o.status === 'Processing'; }).length;
             var success = orders.filter(function (o) { return o.status === 'Success'; }).length;
 
-            document.getElementById('totalOrders').innerText = total;
-            document.getElementById('pendingOrders').innerText = pending;
-            document.getElementById('processingOrders').innerText = processing;
-            document.getElementById('successOrders').innerText = success;
-            var activeOrders = orders.filter(function (order) { return order.status !== 'Success'; });
-            var archivedOrders = orders.filter(function (order) { return order.status === 'Success'; });
-            document.getElementById('adminArchiveCount').innerText = archivedOrders.length;
+            // Safe update helper
+            var setBadge = function (id, val) {
+                var el = document.getElementById(id);
+                if (el) el.innerText = String(val);
+            };
 
-            // Hanya tulis ulang DOM kalau isi yang ditampilkan benar-benar berubah.
-            // Rebuild tiap 5 detik membuang state hover/fokus dan mahal saat arsip besar.
-            var signature = JSON.stringify(activeOrders.map(orderRenderKey)) + '|' +
-                            JSON.stringify(archivedOrders.map(orderRenderKey));
-            if (signature === adminListSignature) return;
-            adminListSignature = signature;
+            setBadge('badgeTabOrders', total);
+            setBadge('countFilterAll', total);
+            setBadge('countFilterPending', pending);
+            setBadge('countFilterProcessing', processing);
+            setBadge('countFilterSuccess', success);
 
-            list.innerHTML = activeOrders.length
-                ? activeOrders.map(function (order) { return renderAdminOrderCard(order, false); }).join('')
-                : '<p class="admin-orders-empty">Tidak ada pesanan yang menunggu atau sedang diproses.</p>';
-            archive.innerHTML = archivedOrders.length
-                ? archivedOrders.map(function (order) { return renderAdminOrderCard(order, true); }).join('')
-                : '<p class="admin-orders-empty">Belum ada pesanan selesai.</p>';
+            setBadge('totalOrders', total);
+            setBadge('pendingOrders', pending);
+            setBadge('processingOrders', processing);
+            setBadge('successOrders', success);
+            setBadge('adminArchiveCount', success);
+
+            var signature = JSON.stringify(orders.map(orderRenderKey));
+            if (signature !== adminListSignature) {
+                adminListSignature = signature;
+                if (orders.length === 0) {
+                    list.innerHTML = '<p class="admin-orders-empty">Belum ada pesanan masuk.</p>';
+                } else {
+                    list.innerHTML = orders.map(function (order) {
+                        return renderAdminOrderCard(order, false);
+                    }).join('');
+                }
+            }
+
+            // Always apply current filter & search
+            applyAdminFilters();
+
+            if (archive) {
+                var archivedOrders = orders.filter(function (order) { return order.status === 'Success'; });
+                archive.innerHTML = archivedOrders.length
+                    ? archivedOrders.map(function (order) { return renderAdminOrderCard(order, true); }).join('')
+                    : '<p class="admin-orders-empty">Belum ada pesanan selesai.</p>';
+            }
         })
         .catch(function (err) {
             if (err.status === 401) {
@@ -1189,16 +1308,17 @@ function refreshAdminOrders() {
                 updateAccountUI();
                 setAccountMode('login');
                 showPage('accountPage');
-                setNavActive(document.getElementById('navAccount'));
+                var navAcc = document.getElementById('navAccount');
+                if (navAcc) setNavActive(navAcc);
             }
-            list.innerHTML = '<p class="admin-orders-empty admin-orders-error">Gagal memuat pesanan: ' + escHtml(err.message) + '</p>';
-            archive.innerHTML = '';
+            if (list) {
+                list.innerHTML = '<p class="admin-orders-empty admin-orders-error">Gagal memuat pesanan: ' + escHtml(err.message || 'Terjadi kesalahan') + '</p>';
+            }
+            if (archive) archive.innerHTML = '';
             console.error('Gagal memuat pesanan admin:', err);
         });
 }
 
-// Bagian pesanan yang memengaruhi tampilan kartu (bukan data lazily-loaded
-// seperti bukti foto), dipakai untuk mendeteksi perubahan saat polling.
 function orderRenderKey(order) {
     return [order.orderKey, order.status, order.game, order.nominal,
             order.payment, order.userId, order.serverId, order.username,
@@ -1219,18 +1339,18 @@ function renderAdminOrderCard(order, isArchived) {
 
     if (!isArchived && order.status === 'Pending') {
         actionButtons =
-            '<button class="btn-outline btn-processing" onclick="updateStatus(\'' + orderKey + '\',\'Processing\')" title="Tandai Diproses"><i class="fas fa-cog"></i> Diproses</button> ' +
-            '<button class="btn-outline btn-success" onclick="updateStatus(\'' + orderKey + '\',\'Success\')" title="Tandai Berhasil"><i class="fas fa-check"></i> Selesai</button> ';
+            '<button class="btn-outline btn-processing" data-admin-action="process" data-order-key="' + orderKey + '" onclick="updateStatus(\'' + orderKey + '\',\'Processing\')" title="Tandai Diproses"><i class="fas fa-cog"></i> Diproses</button> ' +
+            '<button class="btn-outline btn-success" data-admin-action="success" data-order-key="' + orderKey + '" onclick="updateStatus(\'' + orderKey + '\',\'Success\')" title="Tandai Berhasil"><i class="fas fa-check"></i> Selesai</button> ';
     } else if (!isArchived && order.status === 'Processing') {
         actionButtons =
-            '<button class="btn-outline btn-success" onclick="updateStatus(\'' + orderKey + '\',\'Success\')" title="Tandai Berhasil"><i class="fas fa-check"></i> Selesai</button> ';
+            '<button class="btn-outline btn-success" data-admin-action="success" data-order-key="' + orderKey + '" onclick="updateStatus(\'' + orderKey + '\',\'Success\')" title="Tandai Berhasil"><i class="fas fa-check"></i> Selesai</button> ';
     }
 
     var deleteButton = isArchived
         ? ''
-        : '<button class="btn-outline btn-danger" onclick="hapusOrder(\'' + orderKey + '\')" title="Hapus"><i class="fas fa-times"></i> Hapus</button>';
+        : '<button class="btn-outline btn-danger" data-admin-action="delete" data-order-key="' + orderKey + '" onclick="hapusOrder(\'' + orderKey + '\')" title="Hapus"><i class="fas fa-times"></i> Hapus</button>';
 
-    return '<div class="admin-order-card">' +
+    return '<div class="admin-order-card" data-status="' + escHtml(order.status) + '">' +
         '<div class="admin-order-info">' +
             '<small style="color:var(--text-dim)">No. Order <span class="mono" style="color:var(--text-mid)">#' + escHtml(String(order.orderId)) + '</span></small><br>' +
             '<b>' + escHtml(order.game) + '</b> · <span style="color:var(--text-mid)">' + escHtml(order.nominal) + '</span><br>' +
@@ -1240,7 +1360,7 @@ function renderAdminOrderCard(order, isArchived) {
             '<small><span class="status-badge ' + badge + '" style="margin-top:6px">' + label + '</span></small>' +
         '</div>' +
         '<div class="admin-order-actions">' +
-            '<button class="btn-outline" onclick="zoomImg(\'' + orderKey + '\')" title="' + (hasProof ? 'Lihat Bukti Transfer' : 'Belum ada bukti foto') + '">' + proofLabel + '</button> ' +
+            '<button class="btn-outline" data-admin-action="proof" data-order-key="' + orderKey + '" onclick="zoomImg(\'' + orderKey + '\')" title="' + (hasProof ? 'Lihat Bukti Transfer' : 'Belum ada bukti foto') + '">' + proofLabel + '</button> ' +
             actionButtons + deleteButton +
         '</div>' +
     '</div>';
@@ -1948,7 +2068,147 @@ function nowTime() {
     return new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 }
 
+
+if (typeof window !== 'undefined') {
+    window.checkResetToken = checkResetToken;
+    window.submitPasswordReset = submitPasswordReset;
+    window.requestPasswordReset = requestPasswordReset;
+    window.addEventListener('hashchange', checkResetToken);
+    window.addEventListener('popstate', checkResetToken);
+}
+
+
+function handleBuktiUpload(e) {
+    var file = e && e.target && e.target.files && e.target.files[0];
+    if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)) {
+        if (e.target) e.target.value = '';
+        return toast('Gunakan gambar JPEG, PNG, WEBP, atau GIF');
+    }
+    if (file.size > 2 * 1024 * 1024) {
+        if (e.target) e.target.value = '';
+        return toast('Ukuran gambar maksimal 2MB');
+    }
+    var reader = new FileReader();
+    reader.onload = function (evt) {
+        currentOrder.bukti = evt.target.result;
+        var zone = document.getElementById('uploadZone');
+        if (zone) {
+            zone.classList.add('uploaded');
+            var p = zone.querySelector('p');
+            if (p) p.innerText = 'Bukti terpilih';
+            var s = zone.querySelector('span');
+            if (s) s.innerText = file.name;
+        }
+        toast('Gambar berhasil dipilih');
+    };
+    reader.readAsDataURL(file);
+}
+
+function copyOrderKey() {
+    var rawOrderId = (document.getElementById('invOrderKeyDisplay')?.innerText || '').replace(/[^a-f0-9]/gi, '');
+    if (!rawOrderId) return toast('Kode referensi tidak ditemukan');
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(rawOrderId).then(function() {
+            toast('Kode referensi berhasil disalin');
+        }).catch(function() {
+            toast('Gagal menyalin kode referensi');
+        });
+    } else {
+        toast('Kode referensi: ' + rawOrderId);
+    }
+}
+
+function toggleAdminAutoRefresh() {
+    if (adminListener) {
+        clearInterval(adminListener);
+        adminListener = null;
+        var btn = document.getElementById('btnAdminAutoRefresh');
+        if (btn) btn.innerHTML = '<i class="fas fa-play"></i> Auto: OFF';
+        toast('Auto-refresh dimatikan');
+    } else {
+        refreshAdminOrders();
+        adminListener = setInterval(refreshAdminOrders, 5000);
+        var btn = document.getElementById('btnAdminAutoRefresh');
+        if (btn) btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Auto: ON';
+        toast('Auto-refresh diaktifkan');
+    }
+}
+
+var currentAdminStatusFilter = 'all';
+var currentAdminSearchQuery = '';
+
+function applyAdminFilters() {
+    var query = (currentAdminSearchQuery || '').toLowerCase().trim();
+    var filter = (currentAdminStatusFilter || 'all').toLowerCase();
+    var cards = document.querySelectorAll('#adminList .admin-order-card');
+    cards.forEach(function (card) {
+        var cardStatus = (card.getAttribute('data-status') || '').toLowerCase();
+        var cardText = card.textContent.toLowerCase();
+        var matchStatus = (filter === 'all' || cardStatus === filter);
+        var matchSearch = (!query || cardText.includes(query));
+        card.style.display = (matchStatus && matchSearch) ? '' : 'none';
+    });
+}
+
+function setAdminStatusFilter(status) {
+    currentAdminStatusFilter = status || 'all';
+    document.querySelectorAll('.admin-filter-chip').forEach(function (c) { c.classList.remove('active'); });
+    var chip = document.getElementById('chipFilter' + (status.charAt(0).toUpperCase() + status.slice(1)));
+    if (chip) chip.classList.add('active');
+    applyAdminFilters();
+}
+
+function handleAdminSearch(query) {
+    currentAdminSearchQuery = query || '';
+    applyAdminFilters();
+}
+
+function setAdminTab(tab) {
+    var ordersWrap = document.getElementById('adminTabOrdersSection');
+    var reportsWrap = document.getElementById('adminTabReportsSection');
+    var btnOrders = document.getElementById('tabBtnOrders');
+    var btnReports = document.getElementById('tabBtnReports');
+    if (tab === 'reports') {
+        if (ordersWrap) ordersWrap.style.display = 'none';
+        if (reportsWrap) reportsWrap.style.display = '';
+        if (btnOrders) btnOrders.classList.remove('active');
+        if (btnReports) btnReports.classList.add('active');
+        loadSalesReport();
+    } else {
+        if (ordersWrap) ordersWrap.style.display = '';
+        if (reportsWrap) reportsWrap.style.display = 'none';
+        if (btnOrders) btnOrders.classList.add('active');
+        if (btnReports) btnReports.classList.remove('active');
+        refreshAdminOrders();
+    }
+}
+
+if (typeof window !== 'undefined') {
+    window.updateStatus = updateStatus;
+    window.hapusOrder = hapusOrder;
+    window.zoomImg = zoomImg;
+    window.applyAdminFilters = applyAdminFilters;
+    window.setAdminStatusFilter = setAdminStatusFilter;
+    window.handleAdminSearch = handleAdminSearch;
+    window.setAdminTab = setAdminTab;
+    window.toggleAdminAutoRefresh = toggleAdminAutoRefresh;
+}
+
+document.addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-admin-action]');
+    if (!btn) return;
+    var action = btn.getAttribute('data-admin-action');
+    var key = btn.getAttribute('data-order-key');
+    if (action === 'process') updateStatus(key, 'Processing');
+    else if (action === 'success') updateStatus(key, 'Success');
+    else if (action === 'delete') hapusOrder(key);
+    else if (action === 'proof') zoomImg(key);
+});
+
 export {
+    handleBuktiUpload, copyOrderKey, toggleAdminAutoRefresh, setAdminTab, handleAdminSearch, setAdminStatusFilter,
+    checkResetToken,
     apiRequest, loadPdfLibs, showPage, setNavActive, updateOrderTotals, openGame,
     openAccount, togglePassword, setAccountMode, toggleProfileEditor, saveProfile,
     updateAccountUI, submitAccountAuth, requestPasswordReset, submitPasswordReset,

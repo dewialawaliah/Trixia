@@ -43,7 +43,7 @@ Buka `http://localhost:3000`. Server Node.js menyajikan frontend hasil build sek
 ## Teknologi dan data
 
 - Frontend React/Vite dan file JavaScript lama tetap digunakan.
-- API aktif ada di `server/index.js`; perubahan struktur database dijalankan melalui migration `server/migrations` dan snapshot referensi lama ada di `server/db/schema.sql`.
+- API aktif ada di `server/server.js` dengan arsitektur MVC (`controllers/`, `models/`, `middleware/`, `routes/`, `config/`); perubahan struktur database dijalankan melalui migration `server/migrations` dan snapshot referensi lama ada di `server/db/schema.sql`.
 - Perintah migration: `npm run db:migrate`, `npm run db:rollback`, dan `npm run db:create-migration -- nama_migration`.
 - Database lama yang sudah memakai `server/db/schema.sql` perlu dicadangkan terlebih dahulu; pada instalasi baru jalankan `npm run db:migrate`. Untuk database lama, tandai baseline migration sebagai sudah dijalankan sebelum menggunakan migration berikutnya.
 - File `.env` menyimpan password database, secret session, hash password admin, dan pengaturan SMTP. Jangan unggah atau bagikan file tersebut.
