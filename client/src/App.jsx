@@ -82,12 +82,16 @@ function SiteFooter() {
 export default function App() {
   
   React.useEffect(() => {
+    legacy.syncSlider();
     legacy.checkResetToken();
     const handleHash = () => {
       legacy.checkResetToken();
     };
     window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
+    return () => {
+      legacy.stopSlider();
+      window.removeEventListener('hashchange', handleHash);
+    };
   }, []);
 
   return (
@@ -174,9 +178,9 @@ export default function App() {
       {"\n                    "}
       <img src={"Images/opt/bannerff.jpg"} className={"slide active"} alt={"Free Fire"} width={"1200"} height={"675"} fetchPriority={"high"} decoding={"async"} />
       {"\n                    "}
-      <img data-src={"Images/opt/bannermlbb.jpg"} className={"slide"} alt={"Mobile Legends"} width={"1200"} height={"675"} decoding={"async"} />
+      <img src={"Images/opt/bannermlbb.jpg"} className={"slide"} alt={"Mobile Legends"} width={"1200"} height={"675"} decoding={"async"} />
       {"\n                    "}
-      <img data-src={"Images/opt/bannergenshin.jpg"} className={"slide"} alt={"Genshin Impact"} width={"1200"} height={"696"} decoding={"async"} />
+      <img src={"Images/opt/bannergenshin.jpg"} className={"slide"} alt={"Genshin Impact"} width={"1200"} height={"696"} decoding={"async"} />
       {"\n                "}
       </div>
       {"\n                "}

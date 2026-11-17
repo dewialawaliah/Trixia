@@ -1628,34 +1628,27 @@ function goToSlide(n) {
     if (!slides.length) return;
 
     var next = (n + slides.length) % slides.length;
-    if (next === currentSlide || next === pendingSlide) return;
+    if (next === currentSlide) return;
 
     var target = slides[next];
     hydrateSlide(target);
 
-    // Kalau banner belum selesai diunduh, tunggu dulu supaya tidak muncul
-    // frame kosong saat transisi. Slide lama tetap terlihat sampai siap.
-    if (!slideReady(target)) {
-        pendingSlide = next;
-        var show = function () {
-            if (pendingSlide !== next) return;
-            pendingSlide = null;
-            slides[currentSlide].classList.remove('active');
-            dots[currentSlide].classList.remove('active');
-            currentSlide = next;
-            target.classList.add('active');
-            dots[next].classList.add('active');
-        };
-        target.addEventListener('load', show, { once: true });
-        target.addEventListener('error', show, { once: true });
-        return;
-    }
+    if (slides[currentSlide]) slides[currentSlide].classList.remove('active');
+    if (dots[currentSlide]) dots[currentSlide].classList.remove('active');
 
-    slides[currentSlide].classList.remove('active');
-    dots[currentSlide].classList.remove('active');
     currentSlide = next;
-    target.classList.add('active');
-    dots[next].classList.add('active');
+    pendingSlide = null;
+
+    if (target) target.classList.add('active');
+    if (dots[next]) dots[next].classList.add('active');
+
+    // Reset interval timer agar jeda 4 detik dihitung ulang
+    if (slideTimer !== null) {
+        clearInterval(slideTimer);
+        slideTimer = setInterval(function () {
+            goToSlide(currentSlide + 1);
+        }, SLIDE_INTERVAL);
+    }
 }
 
 // Slider hanya perlu jalan saat tab terlihat dan halaman dashboard aktif.
@@ -1665,7 +1658,7 @@ var SLIDE_INTERVAL = 4000;
 
 function isDashboardVisible() {
     var dash = document.getElementById('dashboard');
-    return !document.hidden && dash && dash.classList.contains('active');
+    return !document.hidden && (!dash || dash.classList.contains('active'));
 }
 
 function stopSlider() {
