@@ -6,7 +6,8 @@ module.exports = [
             sourceType: 'commonjs',
             globals: {
                 require: 'readonly', module: 'readonly', process: 'readonly', __dirname: 'readonly',
-                console: 'readonly', Buffer: 'readonly', AbortSignal: 'readonly', fetch: 'readonly', URL: 'readonly'
+                console: 'readonly', Buffer: 'readonly', AbortSignal: 'readonly', fetch: 'readonly', URL: 'readonly',
+                AbortController: 'readonly', setTimeout: 'readonly', clearTimeout: 'readonly'
             }
         },
         rules: {

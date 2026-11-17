@@ -176,8 +176,135 @@ async function getInvoice(req, res, next) {
     }
 }
 
+/**
+ * Validasi Akun Game (Roblox official API, game ID, dll)
+ */
+async function validateAccount(req, res, next) {
+    try {
+        const game = String(req.query.game || '').trim();
+        const id = String(req.query.id || '').trim();
+        const server = String(req.query.server || '').trim();
+
+        if (!game || !id) {
+            return res.status(400).json({ success: false, message: 'Game dan ID/Username wajib diisi.' });
+        }
+
+        const gameLower = game.toLowerCase();
+
+        // 1. Validasi khusus Roblox via Official Users API
+        if (gameLower === 'roblox') {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 5000);
+            try {
+                const robloxRes = await fetch('https://users.roblox.com/v1/usernames/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usernames: [id], excludeBannedUsers: false }),
+                    signal: controller.signal
+                });
+                clearTimeout(timer);
+
+                if (!robloxRes.ok) {
+                    return res.json({ success: false, offline: true, message: 'Gagal terhubung ke server Roblox.' });
+                }
+
+                const data = await robloxRes.json();
+                if (data.data && data.data.length > 0) {
+                    const u = data.data[0];
+                    const displayName = u.displayName || u.name;
+                    const formattedName = displayName !== u.name ? `${displayName} (@${u.name})` : u.name;
+                    return res.json({
+                        success: true,
+                        game: 'Roblox',
+                        id: u.id,
+                        name: formattedName
+                    });
+                }
+                return res.json({
+                    success: false,
+                    message: `Username Roblox "${id}" tidak ditemukan.`
+                });
+            } catch (err) {
+                clearTimeout(timer);
+                return res.json({ success: false, offline: true, message: 'Layanan verifikasi Roblox sedang lambat/sibuk.' });
+            }
+        }
+
+        // 2. Game yang didukung oleh API lookup ID (MLBB, FF, Genshin, dll)
+        const gameCodeMap = {
+            'mobile legends': 'ml',
+            'free fire': 'ff',
+            'call of duty mobile': 'codm',
+            'genshin impact': 'gi',
+            'honkai: star rail': 'hsr',
+            'honor of kings': 'hok',
+            'league of legends: wild rift': 'lolwr',
+            'clash of clans': 'coc'
+        };
+
+        const code = gameCodeMap[gameLower];
+        if (code) {
+            let apiUrl = `https://api.isan.eu.org/nickname/${code}?id=${encodeURIComponent(id)}`;
+            if (server) apiUrl += `&server=${encodeURIComponent(server)}`;
+
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 5000);
+
+            try {
+                const apiRes = await fetch(apiUrl, {
+                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+                    signal: controller.signal
+                });
+                clearTimeout(timer);
+
+                if (apiRes.ok) {
+                    const data = await apiRes.json();
+                    if (data && data.success && data.name) {
+                        return res.json({
+                            success: true,
+                            game,
+                            name: data.name
+                        });
+                    }
+                    return res.json({
+                        success: false,
+                        message: 'ID akun tidak ditemukan, periksa kembali User ID Anda.'
+                    });
+                } else if (apiRes.status === 404) {
+                    return res.json({
+                        success: false,
+                        message: 'ID akun tidak ditemukan, periksa kembali User ID Anda.'
+                    });
+                }
+                return res.json({
+                    success: false,
+                    offline: true,
+                    message: 'Server cek ID game eksternal sedang sibuk.'
+                });
+            } catch (err) {
+                clearTimeout(timer);
+                return res.json({
+                    success: false,
+                    offline: true,
+                    message: 'Server pengecekan ID sedang tidak dapat diakses.'
+                });
+            }
+        }
+
+        // 3. Untuk game/voucher manual tanpa auto-lookup (Steam, Minecraft, dsb)
+        return res.json({
+            success: null,
+            manual: true,
+            message: 'Game ini tidak memerlukan verifikasi nickname otomatis.'
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     createOrder,
     trackOrder,
-    getInvoice
+    getInvoice,
+    validateAccount
 };

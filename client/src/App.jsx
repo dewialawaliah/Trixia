@@ -414,13 +414,13 @@ export default function App() {
       {"\n                                "}
       <div className={"input-wrap"}>
       {"\n                                    "}
-      <input type={"text"} id={"mainUserId"} placeholder={"User ID"} aria-label={"User ID game"} autoComplete={"off"} />
+      <input type={"text"} id={"mainUserId"} placeholder={"User ID"} aria-label={"User ID game"} autoComplete={"off"} onInput={() => legacy.scheduleNicknameCheck()} />
       {"\n                                "}
       </div>
       {"\n                                "}
       <div className={"input-wrap"} id={"mainServerIdWrap"}>
       {"\n                                    "}
-      <input type={"text"} id={"mainServerId"} placeholder={"Server ID (opsional)"} aria-label={"Server ID game"} autoComplete={"off"} />
+      <input type={"text"} id={"mainServerId"} placeholder={"Server ID (opsional)"} aria-label={"Server ID game"} autoComplete={"off"} onInput={() => legacy.scheduleNicknameCheck()} />
       {"\n                                "}
       </div>
       {"\n                            "}

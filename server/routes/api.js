@@ -40,7 +40,8 @@ const legacyActions = {
 
     'orders': { method: 'POST', handler: orderController.createOrder },
     'track': { method: 'GET', handler: orderController.trackOrder },
-    'invoice': { method: 'GET', handler: orderController.getInvoice }
+    'invoice': { method: 'GET', handler: orderController.getInvoice },
+    'validate-account': { method: 'GET', handler: orderController.validateAccount }
 };
 
 // Handler route root /api (mendukung ?action=...)

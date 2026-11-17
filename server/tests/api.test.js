@@ -56,3 +56,15 @@ test('unknown endpoint method returns JSON error', async () => {
     assert.equal(response.status, 405);
     assert.equal(response.headers.allow, 'GET');
 });
+
+test('GET /api/validate-account requires game and id query params', async () => {
+    const response = await request(app).get('/api/validate-account');
+    assert.equal(response.status, 400);
+    assert.equal(response.body.success, false);
+});
+
+test('GET /api/validate-account returns manual info for manual voucher games', async () => {
+    const response = await request(app).get('/api/validate-account?game=Steam%20Wallet&id=player123');
+    assert.equal(response.status, 200);
+    assert.equal(response.body.manual, true);
+});

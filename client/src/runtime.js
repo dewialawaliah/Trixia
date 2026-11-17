@@ -345,7 +345,7 @@ function openGame(name) {
     var cfg = NICKNAME_API_GAMES[name];
     uidInput.placeholder = (cfg && cfg.idPlaceholder) || 'User ID';
 
-    var shouldHideServer = !!(cfg && cfg.hideServer);
+    var shouldHideServer = !(cfg && cfg.needsServer);
     if (sidWrap) sidWrap.style.display = shouldHideServer ? 'none' : '';
     if (rowWrap) rowWrap.classList.toggle('single-col', shouldHideServer);
 
@@ -707,16 +707,20 @@ function logoutAccount() {
 //  cuma disembunyikan, tidak pernah mengganggu proses checkout)
 // ============================================================
 var NICKNAME_API_GAMES = {
-    'Mobile Legends':               { code: 'ml',   needsServer: true  },
-    'Free Fire':                    { code: 'ff',   needsServer: false },
-    'Call of Duty Mobile':          { code: 'codm', needsServer: false },
-    'Genshin Impact':               { code: 'gi',   needsServer: false },
-    'Honkai: Star Rail':            { code: 'hsr',  needsServer: false },
-    'Honor of Kings':               { code: 'hok',  needsServer: true  },
-    'League of Legends: Wild Rift': { code: 'lolwr',needsServer: false },
-    'Clash of Clans':               { code: 'coc',  needsServer: false },
-    'Valorant':                     { code: 'valo', needsServer: false, hideServer: true, idPlaceholder: 'Riot ID (contoh: nama#1234)' },
-    'Point Blank':                  { code: 'pb',   needsServer: false, hideServer: true, idPlaceholder: 'Garena/Zepetto ID' }
+    'Mobile Legends':               { code: 'ml',    needsServer: true,  idPlaceholder: 'User ID' },
+    'Free Fire':                    { code: 'ff',    needsServer: false, idPlaceholder: 'Player ID Free Fire' },
+    'PUBG Mobile':                  { code: 'pubgm', needsServer: false, idPlaceholder: 'Player ID PUBG' },
+    'Call of Duty Mobile':          { code: 'codm',  needsServer: false, idPlaceholder: 'Player ID CODM' },
+    'Genshin Impact':               { code: 'gi',    needsServer: false, idPlaceholder: 'UID Genshin Impact' },
+    'Honkai: Star Rail':            { code: 'hsr',   needsServer: false, idPlaceholder: 'UID Honkai Star Rail' },
+    'Honor of Kings':               { code: 'hok',   needsServer: true,  idPlaceholder: 'Player ID' },
+    'League of Legends: Wild Rift': { code: 'lolwr', needsServer: false, idPlaceholder: 'Riot ID Wild Rift' },
+    'Clash of Clans':               { code: 'coc',   needsServer: false, idPlaceholder: 'Player Tag (contoh: #2PP...)' },
+    'Valorant':                     { code: 'valo',  needsServer: false, idPlaceholder: 'Riot ID (contoh: nama#1234)' },
+    'Point Blank':                  { code: 'pb',    needsServer: false, idPlaceholder: 'Garena/Zepetto ID' },
+    'Roblox':                       { type: 'roblox',needsServer: false, isUsername: true, idPlaceholder: 'Username Roblox' },
+    'Steam Wallet':                 { type: 'manual',needsServer: false, idPlaceholder: 'Steam Account Name / ID' },
+    'Minecraft':                    { type: 'manual',needsServer: false, idPlaceholder: 'Xbox Gamertag / Username' }
 };
 
 var nicknameDebounceTimer = null;
@@ -735,59 +739,105 @@ function showNicknameLoading() {
     if (!box) return;
     box.style.display = 'flex';
     box.className = 'nickname-result loading';
-    box.innerHTML = '<span class="spinner-tiny"></span> Mengecek nickname...';
+    box.innerHTML = '<span class="spinner-tiny"></span> Mengecek akun...';
 }
 
-function showNicknameFound(name) {
+function showNicknameFound(name, label) {
     var box = document.getElementById('nicknameResult');
     if (!box) return;
     box.style.display = 'flex';
     box.className = 'nickname-result found';
-    box.innerHTML = '<i class="fas fa-check-circle"></i> Nickname: <strong>' + escHtml(name) + '</strong>';
+    box.innerHTML = '<i class="fas fa-check-circle"></i> ' + (label || 'Nickname: ') + '<strong>' + escHtml(name) + '</strong>';
 }
 
-function showNicknameNotFound() {
+function showNicknameNotFound(msg) {
     var box = document.getElementById('nicknameResult');
     if (!box) return;
     box.style.display = 'flex';
     box.className = 'nickname-result notfound';
-    box.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ID tidak ditemukan, periksa kembali';
+    box.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + escHtml(msg || 'ID tidak ditemukan, periksa kembali');
+}
+
+function showNicknameInfo(msg) {
+    var box = document.getElementById('nicknameResult');
+    if (!box) return;
+    box.style.display = 'flex';
+    box.className = 'nickname-result info';
+    box.innerHTML = '<i class="fas fa-info-circle"></i> ' + escHtml(msg);
 }
 
 function scheduleNicknameCheck() {
     clearTimeout(nicknameDebounceTimer);
-    nicknameDebounceTimer = setTimeout(checkNickname, 600);
+    nicknameDebounceTimer = setTimeout(checkNickname, 400);
 }
 
 function checkNickname() {
-    var cfg = NICKNAME_API_GAMES[currentOrder.game];
-    if (!cfg) { hideNicknameResult(); return; }
+    var gameName = (currentOrder && currentOrder.game) || (document.getElementById('gameTitleDisplay') ? document.getElementById('gameTitleDisplay').innerText : '');
+    var cfg = NICKNAME_API_GAMES[gameName];
 
-    var uid = document.getElementById('mainUserId').value.trim();
-    var sid = document.getElementById('mainServerId').value.trim();
+    var uidInput = document.getElementById('mainUserId');
+    var sidInput = document.getElementById('mainServerId');
+    if (!uidInput) return;
 
-    if (!uid || (cfg.needsServer && !sid)) { hideNicknameResult(); return; }
+    var uid = uidInput.value.trim();
+    var sid = sidInput ? sidInput.value.trim() : '';
+
+    if (!uid) {
+        hideNicknameResult();
+        return;
+    }
+
+    var isUsername = !!(cfg && cfg.isUsername);
+
+    if (cfg && cfg.needsServer && !sid) {
+        showNicknameNotFound('Masukkan Server ID (Zone ID) untuk memeriksa ID');
+        return;
+    }
+
+    if (uid.length < 3) {
+        showNicknameNotFound((isUsername ? 'Username' : 'ID') + ' terlalu pendek (minimal 3 karakter)');
+        return;
+    }
+
+    // Untuk game/voucher manual tanpa auto-lookup (Steam, Minecraft, dsb)
+    if (cfg && cfg.type === 'manual') {
+        showNicknameInfo('Pastikan ' + (cfg.idPlaceholder || 'ID') + ' sudah benar sebelum pembayaran.');
+        return;
+    }
 
     var myToken = ++nicknameFetchToken;
     showNicknameLoading();
 
-    var url = 'https://api.isan.eu.org/nickname/' + cfg.code + '?id=' + encodeURIComponent(uid);
-    if (cfg.needsServer) url += '&server=' + encodeURIComponent(sid);
+    var query = 'game=' + encodeURIComponent(gameName) + '&id=' + encodeURIComponent(uid);
+    if (sid) query += '&server=' + encodeURIComponent(sid);
 
-    fetch(url)
-        .then(function (res) { return res.json(); })
+    apiRequest('validate-account', { query: query })
         .then(function (data) {
-            if (myToken !== nicknameFetchToken) return; // hasil basi, ada input baru
+            if (myToken !== nicknameFetchToken) return;
+
             if (data && data.success && data.name) {
-                showNicknameFound(data.name);
+                var label = isUsername ? 'Akun Roblox: ' : 'Nickname: ';
+                showNicknameFound(data.name, label);
+                currentOrder.username = data.name;
+            } else if (data && data.manual) {
+                showNicknameInfo('Pastikan ' + (isUsername ? 'Username' : 'ID') + ' akun sudah benar.');
+            } else if (data && data.offline) {
+                // Tampilkan info netral jika service luar offline (jangan centang hijau palsu)
+                showNicknameInfo(data.message || ('Pemeriksaan ' + (isUsername ? 'Username' : 'ID') + ' sedang offline, pastikan input sudah sesuai.'));
             } else {
-                showNicknameNotFound();
+                showNicknameNotFound((data && data.message) || ((isUsername ? 'Username' : 'ID') + ' tidak ditemukan, periksa kembali'));
+                currentOrder.username = '';
             }
         })
-        .catch(function () {
+        .catch(function (err) {
             if (myToken !== nicknameFetchToken) return;
-            // API tidak bisa diakses (down/CORS) — sembunyikan saja, jangan ganggu user
-            hideNicknameResult();
+            var msg = (err && err.message) || '';
+            if (msg.includes('tidak ditemukan')) {
+                showNicknameNotFound(msg);
+                currentOrder.username = '';
+            } else {
+                showNicknameInfo('Pastikan ' + (isUsername ? 'Username' : 'ID') + ' akun Anda sudah sesuai.');
+            }
         });
 }
 
@@ -1526,60 +1576,180 @@ function fillInvoiceUI(order, orderKey) {
     updateInvoiceStatus(order.status || 'Pending');
 }
 
-function downloadInvoice() {
-    var card = document.getElementById('invoiceCard');
-    if (!card) return;
+function cleanPdfText(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/💎/g, ' Diamonds')
+        .replace(/🪙/g, ' Coins')
+        .replace(/[—–]/g, '-')
+        .replace(/•/g, '*')
+        .replace(/[^\x20-\x7E]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
 
+function downloadInvoice() {
     var btn = document.querySelector('.btn-invoice-download');
     var resetBtn = function (label) {
         if (!btn) return;
-        btn.innerHTML = label || '<i class="fas fa-download"></i> Simpan Invoice';
+        btn.innerHTML = label || '<i class="fas fa-download"></i> Simpan Struk (PDF)';
         btn.disabled = false;
     };
 
-    resetBtn('<i class="fas fa-spinner fa-spin"></i> Menyiapkan...');
+    resetBtn('<i class="fas fa-spinner fa-spin"></i> Menyiapkan Struk...');
+
+    var rawOrderId = (document.getElementById('inv-orderId') ? document.getElementById('inv-orderId').innerText : '#000000').replace('#', '');
+    var orderId = cleanPdfText(rawOrderId);
+    var date = cleanPdfText(document.getElementById('inv-date') ? document.getElementById('inv-date').innerText : '-');
+    var game = cleanPdfText(document.getElementById('inv-game') ? document.getElementById('inv-game').innerText : '-');
+    var nominal = cleanPdfText(document.getElementById('inv-nominal') ? document.getElementById('inv-nominal').innerText : '-');
+    var userId = cleanPdfText(document.getElementById('inv-userId') ? document.getElementById('inv-userId').innerText : '-');
+    var serverId = cleanPdfText(document.getElementById('inv-serverId') ? document.getElementById('inv-serverId').innerText : '-');
+    var username = cleanPdfText(document.getElementById('inv-username') ? document.getElementById('inv-username').innerText : '');
+    var accountUsername = cleanPdfText(document.getElementById('inv-account-username') ? document.getElementById('inv-account-username').innerText : '');
+    var payment = cleanPdfText(document.getElementById('inv-payment') ? document.getElementById('inv-payment').innerText : '-');
+    var harga = cleanPdfText(document.getElementById('inv-harga') ? document.getElementById('inv-harga').innerText : '-');
+    var orderKey = cleanPdfText(document.getElementById('inv-orderKey') ? document.getElementById('inv-orderKey').innerText : '-');
+    var statusText = cleanPdfText((document.getElementById('inv-status-pill') ? document.getElementById('inv-status-pill').innerText : 'MENUNGGU VERIFIKASI').trim());
 
     loadPdfLibs().then(function (pdfLibraries) {
         var JsPDF = pdfLibraries.jsPDF;
-        return pdfLibraries.html2canvas(card, {
-            backgroundColor: '#04070E',
-            scale: 2,
-            useCORS: true,
-            logging: false
-        }).then(function (canvas) {
-            var imgData = canvas.toDataURL('image/png');
-            var pdf = new JsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-            var pageW  = pdf.internal.pageSize.getWidth();
-            var pageH  = pdf.internal.pageSize.getHeight();
-            var imgW   = pageW - 20;
-            var imgH   = (canvas.height * imgW) / canvas.width;
-            var posY   = (pageH - imgH) / 2;
-            if (posY < 10) posY = 10;
-            pdf.addImage(imgData, 'PNG', 10, posY, imgW, imgH);
-            var orderId = document.getElementById('inv-orderId').innerText || 'invoice';
-            pdf.save('trixia-' + orderId + '.pdf');
-            toast('Invoice berhasil diunduh!');
+        var doc = new JsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a5'
         });
-    }).then(function () {
+
+        var pageWidth = 148;
+        var margin = 12;
+        var contentWidth = pageWidth - (margin * 2);
+
+        // Header Background Banner Navy Dark
+        doc.setFillColor(15, 23, 42);
+        doc.rect(0, 0, pageWidth, 32, 'F');
+
+        // Brand & Header
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(18);
+        doc.setTextColor(255, 255, 255);
+        doc.text('TRIXIA', margin, 14);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(199, 210, 254);
+        doc.text('OFFICIAL GAMING STORE - STRUK PEMBAYARAN', margin, 21);
+
+        doc.setFontSize(7.5);
+        doc.setTextColor(148, 163, 184);
+        doc.text('Instagram: @trixia.for3_  |  Layanan Top Up Game 24/7', margin, 27);
+
+        // Receipt Card Box
+        var startY = 38;
+        doc.setFillColor(255, 255, 255);
+        doc.setDrawColor(226, 232, 240);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(margin, startY, contentWidth, 155, 3, 3, 'FD');
+
+        // Meta Header (Order ID & Tanggal)
+        var y = startY + 9;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(100, 116, 139);
+        doc.text('NOMOR PESANAN', margin + 6, y);
+        doc.text('TANGGAL', margin + contentWidth - 6, y, { align: 'right' });
+
+        y += 5.5;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(13);
+        doc.setTextColor(79, 70, 229);
+        doc.text('#' + orderId, margin + 6, y);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(51, 65, 85);
+        doc.text(date, margin + contentWidth - 6, y, { align: 'right' });
+
+        // Divider
+        y += 5.5;
+        doc.setDrawColor(226, 232, 240);
+        doc.line(margin + 6, y, margin + contentWidth - 6, y);
+
+        // Status Badge
+        y += 7;
+        doc.setFillColor(238, 242, 255);
+        doc.setDrawColor(199, 210, 254);
+        doc.roundedRect(margin + 6, y - 4, contentWidth - 12, 7.5, 2, 2, 'FD');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(67, 56, 202);
+        doc.text('STATUS: ' + statusText.toUpperCase(), margin + (contentWidth / 2), y + 1.2, { align: 'center' });
+
+        // Detail Rows
+        y += 10;
+        var details = [
+            ['Game', game],
+            ['Item / Nominal', nominal],
+            ['User ID Game', userId],
+            ['Server ID', (serverId && serverId !== '-') ? serverId : '-'],
+            ['Nickname Game', username || '-'],
+            ['Metode Bayar', payment],
+            ['Ref Order', orderKey]
+        ];
+
+        if (accountUsername && accountUsername !== '-') {
+            details.splice(5, 0, ['Akun TRIXIA', accountUsername]);
+        }
+
+        doc.setFontSize(8.5);
+        details.forEach(function (row, idx) {
+            var rowY = y + (idx * 8);
+
+            if (idx % 2 === 0) {
+                doc.setFillColor(248, 250, 252);
+                doc.rect(margin + 6, rowY - 4.5, contentWidth - 12, 8, 'F');
+            }
+
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(100, 116, 139);
+            doc.text(row[0], margin + 9, rowY + 1);
+
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(30, 41, 59);
+            doc.text(cleanPdfText(row[1]), margin + contentWidth - 9, rowY + 1, { align: 'right' });
+        });
+
+        // Total Bayar Box
+        var totalY = y + (details.length * 8) + 4;
+        doc.setFillColor(241, 245, 249);
+        doc.setDrawColor(203, 213, 225);
+        doc.roundedRect(margin + 6, totalY, contentWidth - 12, 15, 2, 2, 'FD');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8.5);
+        doc.setTextColor(71, 85, 105);
+        doc.text('TOTAL PEMBAYARAN', margin + 10, totalY + 9.5);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor(15, 23, 42);
+        doc.text(harga, margin + contentWidth - 10, totalY + 10.5, { align: 'right' });
+
+        // Footer Note
+        var footerY = startY + 155 - 12;
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(7);
+        doc.setTextColor(148, 163, 184);
+        doc.text('* Struk ini sah sebagai bukti transaksi resmi dari TRIXIA.', margin + (contentWidth / 2), footerY, { align: 'center' });
+        doc.text('Simpan No. Pesanan untuk melacak status pesanan Anda.', margin + (contentWidth / 2), footerY + 4.5, { align: 'center' });
+
+        doc.save('Struk-TRIXIA-' + orderId + '.pdf');
+        toast('Struk PDF berhasil diunduh!');
         resetBtn();
     }).catch(function (err) {
-        console.error(err);
+        console.error('Gagal membuat struk:', err);
         resetBtn();
-        // Fallback: print dialog
-        var printWin = window.open('', '_blank');
-        if (!printWin) return toast('Popup diblokir browser. Izinkan popup untuk menyimpan invoice.');
-        var styles = Array.from(document.styleSheets).map(function (ss) {
-            try { return Array.from(ss.cssRules).map(function (r) { return r.cssText; }).join('\n'); }
-            catch (e) { return ''; }
-        }).join('\n');
-        var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Invoice TRIXIA</title>' +
-            '<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">' +
-            '<style>body{background:#04070E;color:#E8EDF5;font-family:DM Sans,sans-serif;margin:0;padding:32px;} ' +
-            styles + '</style></head><body>' + card.outerHTML + '</body></html>';
-        printWin.document.write(html);
-        printWin.document.close();
-        printWin.focus();
-        setTimeout(function () { printWin.print(); }, 500);
+        toast('Gagal mengunduh struk.');
     });
 }
 

@@ -323,6 +323,9 @@ main, nav { position: relative; z-index: 1; }
 .nickname-result.notfound {
     background: rgba(255,184,0,0.07); border-color: rgba(255,184,0,0.25); color: var(--gold);
 }
+.nickname-result.info {
+    background: rgba(59,130,246,0.07); border-color: rgba(59,130,246,0.25); color: #93C5FD;
+}
 .nickname-result .spinner-tiny {
     width: 12px; height: 12px; border-radius: 50%;
     border: 2px solid var(--border); border-top-color: var(--text-mid);
@@ -2125,6 +2128,7 @@ body {
 .nickname-result { background: #1B253D; border-radius: 10px; }
 .nickname-result.found { color: #C7D2FE; border-color: rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.1); }
 .nickname-result.notfound { color: #FCD34D; border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.08); }
+.nickname-result.info { color: #93C5FD; border-color: rgba(59, 130, 246, 0.35); background: rgba(59, 130, 246, 0.1); }
 .nominal-grid { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 9px; }
 .nominal-card {
     padding: 13px 10px;

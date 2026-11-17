@@ -16,6 +16,7 @@ const API_ROUTES = {
     orders: 'POST /api/orders',
     track: 'GET /api/orders/{orderId}',
     invoice: 'GET /api/invoices/{orderKey}',
+    'validate-account': 'GET /api/validate-account',
     'admin-proof': 'GET /api/admin/orders/{orderKey}/proof',
     'admin-status': 'PATCH /api/admin/orders/{orderKey}/status',
     'admin-delete': 'DELETE /api/admin/orders/{orderKey}'
